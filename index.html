@@ -405,8 +405,8 @@
 
     <div class="container">
         <div class="welcome-card">
-            <h1>Välkommen till Faktarutor!</h1>
-            <p>Utforska 24 spännande faktarutor och dela dina tankar. Varje ruta innehåller intressant information följt av tre frågor.</p>
+            <h1>Politiska uppdrag 2026</h1>
+            <p>Här finns alla de 24 uppdragen presenterade.</p>
         </div>
 
         <div class="loading" id="loading">
@@ -493,11 +493,11 @@
                     </div>
 
                     <div class="question">
-                        <h4><span class="question-number">2</span>${box.q2_text}</h4>
+                        <h4><span class="question-number">2</span>${box.q2_text} <span style="font-size: 0.9rem; color: #64748b;">(Välj ett eller flera alternativ)</span></h4>
                         <div class="options">
                             ${box.q2_options.split(',').map(option => `
                                 <div class="option-item">
-                                    <input type="radio" name="q2_${box.box_id}" value="${option.trim()}" id="q2_${box.box_id}_${option.trim()}">
+                                    <input type="checkbox" name="q2_${box.box_id}" value="${option.trim()}" id="q2_${box.box_id}_${option.trim()}">
                                     <label for="q2_${box.box_id}_${option.trim()}">${option.trim()}</label>
                                 </div>
                             `).join('')}
@@ -519,7 +519,7 @@
             });
 
             // Lägg till event listeners för option selection
-            document.querySelectorAll('.option-item input').forEach(input => {
+            document.querySelectorAll('.option-item input[type="radio"]').forEach(input => {
                 input.addEventListener('change', function() {
                     // Ta bort selected class från alla options i samma grupp
                     const groupName = this.name;
@@ -531,15 +531,32 @@
                     this.closest('.option-item').classList.add('selected');
                 });
             });
+
+            // Lägg till event listeners för checkbox selection
+            document.querySelectorAll('.option-item input[type="checkbox"]').forEach(input => {
+                input.addEventListener('change', function() {
+                    // Toggle selected class för checkboxes
+                    if (this.checked) {
+                        this.closest('.option-item').classList.add('selected');
+                    } else {
+                        this.closest('.option-item').classList.remove('selected');
+                    }
+                });
+            });
         }
 
         // Skicka svar
         async function submitAnswers(boxId) {
             const q1Answer = document.querySelector(`input[name="q1_${boxId}"]:checked`)?.value || '';
-            const q2Answer = document.querySelector(`input[name="q2_${boxId}"]:checked`)?.value || '';
+            
+            // Hämta alla valda checkboxes för fråga 2
+            const q2Checkboxes = document.querySelectorAll(`input[name="q2_${boxId}"]:checked`);
+            const q2Answers = Array.from(q2Checkboxes).map(cb => cb.value);
+            const q2Answer = q2Answers.join(', '); // Kombinera flera svar med komma
+            
             const q3Answer = document.getElementById(`q3_${boxId}`).value || '';
 
-            if (!q1Answer || !q2Answer || !q3Answer.trim()) {
+            if (!q1Answer || q2Answers.length === 0 || !q3Answer.trim()) {
                 document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">⚠️ Vänligen svara på alla tre frågor</div>';
                 return;
             }
@@ -549,22 +566,29 @@
             button.innerHTML = 'Skickar...';
 
             try {
+                const payload = {
+                    timestamp: new Date().toISOString(),
+                    session_id: sessionId,
+                    box_id: boxId,
+                    q1_answer: q1Answer,
+                    q2_answer: q2Answer,
+                    q3_answer: q3Answer
+                };
+
+                console.log('Skickar data:', payload); // För felsökning
+
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        timestamp: new Date().toISOString(),
-                        session_id: sessionId,
-                        box_id: boxId,
-                        q1_answer: q1Answer,
-                        q2_answer: q2Answer,
-                        q3_answer: q3Answer
-                    })
+                    body: JSON.stringify(payload)
                 });
 
+                console.log('Response status:', response.status); // För felsökning
+                
                 const result = await response.json();
+                console.log('Response data:', result); // För felsökning
                 
                 if (result.success) {
                     document.getElementById(`message_${boxId}`).innerHTML = '<div class="message success">✅ Svar sparat!</div>';
@@ -594,13 +618,13 @@
                         }, 1000);
                     }
                 } else {
-                    document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Kunde inte spara svar. Försök igen.</div>';
+                    document.getElementById(`message_${boxId}`).innerHTML = `<div class="message error">❌ Fel: ${result.error || 'Kunde inte spara svar'}</div>`;
                     button.disabled = false;
                     button.innerHTML = 'Skicka svar';
                 }
             } catch (error) {
-                console.error('Fel:', error);
-                document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Något gick fel. Försök igen.</div>';
+                console.error('Fel vid sparande:', error);
+                document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Något gick fel. Kontrollera internetanslutningen och försök igen.</div>';
                 button.disabled = false;
                 button.innerHTML = 'Skicka svar';
             }
