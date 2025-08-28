@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faktarutor - Lär dig något nytt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4c51bf;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-text {
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4c51bf, #667eea);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-card h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #4c51bf, #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-card p {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+
+        .fact-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideIn 0.6s ease forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fact-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .fact-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .fact-number {
+            background: linear-gradient(135deg, #4c51bf, #667eea);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .completion-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .completion-status.completed {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .fact-box h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1a202c;
+        }
+
+        .fact-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #4a5568;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid #4c51bf;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(248, 250, 252, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(203, 213, 225, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .question:hover {
+            background: rgba(241, 245, 249, 0.9);
+            border-color: #cbd5e1;
+        }
+
+        .question h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .question-number {
+            background: #4c51bf;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .options {
+            display: grid;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .option-item:hover {
+            border-color: #4c51bf;
+            background: #f8fafc;
+        }
+
+        .option-item input {
+            margin-right: 0.75rem;
+            transform: scale(1.2);
+            accent-color: #4c51bf;
+        }
+
+        .option-item.selected {
+            background: #eef2ff;
+            border-color: #4c51bf;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.2s ease;
+            background: white;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4c51bf;
+            box-shadow: 0 0 0 3px rgba(76, 81, 191, 0.1);
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #4c51bf, #667eea);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(76, 81, 191, 0.3);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .submit-button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #4c51bf;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .final-message {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin: 2rem 0;
+        }
+
+        .final-message h2 {
+            color: #10b981;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .fact-box {
+                padding: 1.5rem;
+            }
+            
+            .header-content {
+                padding: 0 1rem;
+            }
+            
+            .progress-bar {
+                width: 100px;
+            }
+            
+            .welcome-card h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">📚 Faktarutor</div>
+            <div class="progress-container">
+                <span class="progress-text">Framsteg: <span id="progress-text">0/24</span></span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h1>Välkommen till Faktarutor!</h1>
+            <p>Utforska 24 spännande faktarutor och dela dina tankar. Varje ruta innehåller intressant information följt av tre frågor.</p>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Laddar faktarutor...</p>
+        </div>
+
+        <div id="content"></div>
+
+        <div class="final-message" id="final-message">
+            <h2>🎉 Grattis!</h2>
+            <p>Du har slutfört alla faktarutor. Tack för dina svar!</p>
+        </div>
+    </div>
+
+    <script>
+        // Din Google Apps Script API URL
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwxBGvT2DQPjkXvS-uRy-0VliYL9BypZgexdPsOzENBMODcp6ni_c8AlPazdAtbiG4A/exec';
+        
+        let sessionId = localStorage.getItem('sessionId');
+        if (!sessionId) {
+            sessionId = 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            localStorage.setItem('sessionId', sessionId);
+        }
+
+        let factBoxes = [];
+        let completedBoxes = new Set(JSON.parse(localStorage.getItem('completedBoxes') || '[]'));
+
+        // Hämta faktarutor
+        async function loadFactBoxes() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                const response = await fetch(`${API_URL}?action=get_fact_boxes`);
+                const data = await response.json();
+                
+                if (Array.isArray(data) && data.length > 0) {
+                    factBoxes = data;
+                    displayFactBoxes(factBoxes);
+                    updateProgress();
+                } else {
+                    document.getElementById('content').innerHTML = '<div class="error">Kunde inte ladda faktarutor. Kontrollera att data finns i Google Sheet.</div>';
+                }
+            } catch (error) {
+                console.error('Fel:', error);
+                document.getElementById('content').innerHTML = '<div class="error">Något gick fel vid laddning av faktarutor.</div>';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Visa faktarutor
+        function displayFactBoxes(factBoxes) {
+            const content = document.getElementById('content');
+            content.innerHTML = '';
+
+            factBoxes.forEach((box, index) => {
+                const isCompleted = completedBoxes.has(box.box_id.toString());
+                
+                const factBoxDiv = document.createElement('div');
+                factBoxDiv.className = 'fact-box';
+                factBoxDiv.style.animationDelay = `${index * 0.1}s`;
+                
+                factBoxDiv.innerHTML = `
+                    <div class="fact-header">
+                        <div class="fact-number">Faktaruta ${box.box_id}</div>
+                        <div class="completion-status ${isCompleted ? 'completed' : ''}" id="status_${box.box_id}">
+                            ${isCompleted ? '✓' : ''}
+                        </div>
+                    </div>
+                    
+                    <h2>${box.title}</h2>
+                    <div class="fact-content">${box.content}</div>
+                    
+                    <div class="question">
+                        <h4><span class="question-number">1</span>${box.q1_text}</h4>
+                        <div class="options">
+                            ${box.q1_options.split(',').map(option => `
+                                <div class="option-item">
+                                    <input type="radio" name="q1_${box.box_id}" value="${option.trim()}" id="q1_${box.box_id}_${option.trim()}">
+                                    <label for="q1_${box.box_id}_${option.trim()}">${option.trim()}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <h4><span class="question-number">2</span>${box.q2_text}</h4>
+                        <div class="options">
+                            ${box.q2_options.split(',').map(option => `
+                                <div class="option-item">
+                                    <input type="radio" name="q2_${box.box_id}" value="${option.trim()}" id="q2_${box.box_id}_${option.trim()}">
+                                    <label for="q2_${box.box_id}_${option.trim()}">${option.trim()}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <h4><span class="question-number">3</span>${box.q3_text}</h4>
+                        <textarea id="q3_${box.box_id}" placeholder="Skriv ditt svar här..." rows="4"></textarea>
+                    </div>
+
+                    <button class="submit-button" onclick="submitAnswers(${box.box_id})" ${isCompleted ? 'disabled' : ''}>
+                        ${isCompleted ? '✓ Svarat' : 'Skicka svar'}
+                    </button>
+                    <div id="message_${box.box_id}"></div>
+                `;
+                
+                content.appendChild(factBoxDiv);
+            });
+
+            // Lägg till event listeners för option selection
+            document.querySelectorAll('.option-item input').forEach(input => {
+                input.addEventListener('change', function() {
+                    // Ta bort selected class från alla options i samma grupp
+                    const groupName = this.name;
+                    document.querySelectorAll(`input[name="${groupName}"]`).forEach(radio => {
+                        radio.closest('.option-item').classList.remove('selected');
+                    });
+                    
+                    // Lägg till selected class på vald option
+                    this.closest('.option-item').classList.add('selected');
+                });
+            });
+        }
+
+        // Skicka svar
+        async function submitAnswers(boxId) {
+            const q1Answer = document.querySelector(`input[name="q1_${boxId}"]:checked`)?.value || '';
+            const q2Answer = document.querySelector(`input[name="q2_${boxId}"]:checked`)?.value || '';
+            const q3Answer = document.getElementById(`q3_${boxId}`).value || '';
+
+            if (!q1Answer || !q2Answer || !q3Answer.trim()) {
+                document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">⚠️ Vänligen svara på alla tre frågor</div>';
+                return;
+            }
+
+            const button = document.querySelector(`button[onclick="submitAnswers(${boxId})"]`);
+            button.disabled = true;
+            button.innerHTML = 'Skickar...';
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        timestamp: new Date().toISOString(),
+                        session_id: sessionId,
+                        box_id: boxId,
+                        q1_answer: q1Answer,
+                        q2_answer: q2Answer,
+                        q3_answer: q3Answer
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById(`message_${boxId}`).innerHTML = '<div class="message success">✅ Svar sparat!</div>';
+                    
+                    // Uppdatera completion status
+                    completedBoxes.add(boxId.toString());
+                    localStorage.setItem('completedBoxes', JSON.stringify([...completedBoxes]));
+                    
+                    const statusElement = document.getElementById(`status_${boxId}`);
+                    statusElement.classList.add('completed');
+                    statusElement.innerHTML = '✓';
+                    
+                    button.innerHTML = '✓ Svarat';
+                    
+                    // Inaktivera alla inputs i denna faktaruta
+                    const factBox = button.closest('.fact-box');
+                    const inputs = factBox.querySelectorAll('input, textarea');
+                    inputs.forEach(input => input.disabled = true);
+                    
+                    updateProgress();
+                    
+                    // Kolla om alla faktarutor är klara
+                    if (completedBoxes.size === factBoxes.length) {
+                        setTimeout(() => {
+                            document.getElementById('final-message').style.display = 'block';
+                            document.getElementById('final-message').scrollIntoView({ behavior: 'smooth' });
+                        }, 1000);
+                    }
+                } else {
+                    document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Kunde inte spara svar. Försök igen.</div>';
+                    button.disabled = false;
+                    button.innerHTML = 'Skicka svar';
+                }
+            } catch (error) {
+                console.error('Fel:', error);
+                document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Något gick fel. Försök igen.</div>';
+                button.disabled = false;
+                button.innerHTML = 'Skicka svar';
+            }
+        }
+
+        // Uppdatera progress
+        function updateProgress() {
+            const completed = completedBoxes.size;
+            const total = factBoxes.length;
+            const percentage = total > 0 ? (completed / total) * 100 : 0;
+            
+            document.getElementById('progress-text').textContent = `${completed}/${total}`;
+            document.getElementById('progress-fill').style.width = `${percentage}%`;
+        }
+
+        // Ladda faktarutor när sidan laddas
+        loadFactBoxes();
+    </script>
+</body>
+</html>
