@@ -42,9 +42,13 @@
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #4c51bf;
+            height: 40px;
+        }
+        
+        .logo img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
         }
 
         .progress-container {
@@ -387,7 +391,9 @@
 <body>
     <div class="header">
         <div class="header-content">
-            <div class="logo">📚 Faktarutor</div>
+            <div class="logo">
+                <img src="https://karlskoga.se/images/18.17cf90041722ce1749b5e/1640015633047/Karlskoga_liggande.png" alt="Karlskoga kommun">
+            </div>
             <div class="progress-container">
                 <span class="progress-text">Framsteg: <span id="progress-text">0/24</span></span>
                 <div class="progress-bar">
