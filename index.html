@@ -405,8 +405,8 @@
 
     <div class="container">
         <div class="welcome-card">
-            <h1>Politiska uppdrag 2026</h1>
-            <p>Här finns alla de 24 uppdragen presenterade.</p>
+            <h1>Välkommen till Faktarutor!</h1>
+            <p>Utforska 24 spännande faktarutor och dela dina tankar. Varje ruta innehåller intressant information följt av tre frågor.</p>
         </div>
 
         <div class="loading" id="loading">
@@ -424,7 +424,7 @@
 
     <script>
         // Din Google Apps Script API URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwxBGvT2DQPjkXvS-uRy-0VliYL9BypZgexdPsOzENBMODcp6ni_c8AlPazdAtbiG4A/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxH8tzEYPT6TkmdGzaWReQIsL-wl1Dqv4uDLyNX2C-Q-uY5zL-LEzGqNRvrg5qqW-M/exec';
         
         let sessionId = localStorage.getItem('sessionId');
         if (!sessionId) {
@@ -435,17 +435,36 @@
         let factBoxes = [];
         let completedBoxes = new Set(JSON.parse(localStorage.getItem('completedBoxes') || '[]'));
 
-        // Hämta faktarutor
+        // Hämta faktarutor med JSONP
         async function loadFactBoxes() {
             try {
                 document.getElementById('loading').style.display = 'block';
-                const response = await fetch(`${API_URL}?action=get_fact_boxes`);
-                const data = await response.json();
+                
+                // Använd JSONP för att undvika CORS
+                const data = await new Promise((resolve, reject) => {
+                    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+                    window[callbackName] = function(data) {
+                        delete window[callbackName];
+                        document.head.removeChild(script);
+                        resolve(data);
+                    };
+                    
+                    const script = document.createElement('script');
+                    script.src = `${API_URL}?action=get_fact_boxes&callback=${callbackName}`;
+                    script.onerror = function() {
+                        delete window[callbackName];
+                        document.head.removeChild(script);
+                        reject(new Error('Script loading failed'));
+                    };
+                    document.head.appendChild(script);
+                });
                 
                 if (Array.isArray(data) && data.length > 0) {
                     factBoxes = data;
                     displayFactBoxes(factBoxes);
                     updateProgress();
+                } else if (data.error) {
+                    document.getElementById('content').innerHTML = `<div class="error">Fel: ${data.error}</div>`;
                 } else {
                     document.getElementById('content').innerHTML = '<div class="error">Kunde inte ladda faktarutor. Kontrollera att data finns i Google Sheet.</div>';
                 }
@@ -545,7 +564,7 @@
             });
         }
 
-        // Skicka svar
+        // Skicka svar med JSONP
         async function submitAnswers(boxId) {
             const q1Answer = document.querySelector(`input[name="q1_${boxId}"]:checked`)?.value || '';
             
@@ -575,20 +594,30 @@
                     q3_answer: q3Answer
                 };
 
-                console.log('Skickar data:', payload); // För felsökning
+                console.log('Skickar data:', payload);
 
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
+                // Använd JSONP för POST-request (genom att koda data som GET-parametrar)
+                const params = new URLSearchParams(payload).toString();
+                
+                const result = await new Promise((resolve, reject) => {
+                    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+                    window[callbackName] = function(data) {
+                        delete window[callbackName];
+                        document.head.removeChild(script);
+                        resolve(data);
+                    };
+                    
+                    const script = document.createElement('script');
+                    script.src = `${API_URL}?callback=${callbackName}&${params}`;
+                    script.onerror = function() {
+                        delete window[callbackName];
+                        document.head.removeChild(script);
+                        reject(new Error('Script loading failed'));
+                    };
+                    document.head.appendChild(script);
                 });
 
-                console.log('Response status:', response.status); // För felsökning
-                
-                const result = await response.json();
-                console.log('Response data:', result); // För felsökning
+                console.log('Response data:', result);
                 
                 if (result.success) {
                     document.getElementById(`message_${boxId}`).innerHTML = '<div class="message success">✅ Svar sparat!</div>';
