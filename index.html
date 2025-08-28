@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faktarutor - Lär dig något nytt</title>
+    <title>Politiska uppdrag 2026</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -405,26 +405,26 @@
 
     <div class="container">
         <div class="welcome-card">
-            <h1>Välkommen till Faktarutor!</h1>
-            <p>Utforska 24 spännande faktarutor och dela dina tankar. Varje ruta innehåller intressant information följt av tre frågor.</p>
+            <h1>Politiska uppdrag 2026</h1>
+            <p>Här preseneteras de 24 uppdrag från mål och budget 2026</p>
         </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Laddar faktarutor...</p>
+            <p>Laddar uppdrag...</p>
         </div>
 
         <div id="content"></div>
 
         <div class="final-message" id="final-message">
-            <h2>🎉 Grattis!</h2>
-            <p>Du har slutfört alla faktarutor. Tack för dina svar!</p>
+            <h2>🎉 Nu är du klar!</h2>
+            <p>Du har nu lämnat in svar kopplat till alla politiska uppdrag. Tack för dina svar!</p>
         </div>
     </div>
 
     <script>
         // Din Google Apps Script API URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxH8tzEYPT6TkmdGzaWReQIsL-wl1Dqv4uDLyNX2C-Q-uY5zL-LEzGqNRvrg5qqW-M/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyht3Y_h2ziksFJDJ8JsQeFltqP1E1I4WZdvbli52luZDTsUW9GzKdHf2jPHIlvDBdb/exec';
         
         let sessionId = localStorage.getItem('sessionId');
         if (!sessionId) {
@@ -597,7 +597,10 @@
                 console.log('Skickar data:', payload);
 
                 // Använd JSONP för POST-request (genom att koda data som GET-parametrar)
-                const params = new URLSearchParams(payload).toString();
+                const params = new URLSearchParams({
+                    action: 'save_response',
+                    ...payload
+                }).toString();
                 
                 const result = await new Promise((resolve, reject) => {
                     const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
