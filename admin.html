@@ -721,7 +721,7 @@
     </div>
 
     <script>
-        // API konfiguration
+        // API konfiguration - SAMMA som huvudsidan
         const API_URL = 'https://script.google.com/macros/s/AKfycbyht3Y_h2ziksFJDJ8JsQeFltqP1E1I4WZdvbli52luZDTsUW9GzKdHf2jPHIlvDBdb/exec';
         
         let allUppdrag = [];
@@ -1473,13 +1473,12 @@
             });
         }
 
-        // Starta applikationen
+        // Starta applikationen - ladda data en gång
         document.addEventListener('DOMContentLoaded', function() {
             loadAllData();
         });
 
-        // Auto-uppdatering var 60:e sekund
-        setInterval(loadAllData, 60000);
+        // Ingen automatisk uppdatering - endast manuell via knappen
     </script>
 </body>
 </html>
