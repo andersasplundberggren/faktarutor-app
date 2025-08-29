@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Politiska uppdrag 2026</title>
+    <title>Faktarutor - Lär dig något nytt</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -411,20 +411,20 @@
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Laddar uppdrag...</p>
+            <p>Laddar faktarutor...</p>
         </div>
 
         <div id="content"></div>
 
         <div class="final-message" id="final-message">
-            <h2>🎉 Nu är du klar!</h2>
-            <p>Du har nu lämnat in svar kopplat till alla politiska uppdrag. Tack för dina svar!</p>
+            <h2>🎉 Grattis!</h2>
+            <p>Du har slutfört alla faktarutor. Tack för dina svar!</p>
         </div>
     </div>
 
     <script>
-        // Din Google Apps Script API URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyht3Y_h2ziksFJDJ8JsQeFltqP1E1I4WZdvbli52luZDTsUW9GzKdHf2jPHIlvDBdb/exec';
+        // Din optimerade Google Apps Script API URL
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyi-RP60M5AkpzuL82wE_kRK31FCnfcQuWU-9y1IA0dhYjL6lt3XN4ZZ5mVWEn6yNet/exec';
         
         let sessionId = localStorage.getItem('sessionId');
         if (!sessionId) {
@@ -490,7 +490,7 @@
                 
                 factBoxDiv.innerHTML = `
                     <div class="fact-header">
-                        <div class="fact-number">Mål och målbeskrivning ${box.box_id}</div>
+                        <div class="fact-number">Faktaruta ${box.box_id}</div>
                         <div class="completion-status ${isCompleted ? 'completed' : ''}" id="status_${box.box_id}">
                             ${isCompleted ? '✓' : ''}
                         </div>
