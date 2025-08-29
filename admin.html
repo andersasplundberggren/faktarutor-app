@@ -721,8 +721,8 @@
     </div>
 
     <script>
-        // API konfiguration - SAMMA som huvudsidan
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyht3Y_h2ziksFJDJ8JsQeFltqP1E1I4WZdvbli52luZDTsUW9GzKdHf2jPHIlvDBdb/exec';
+        // API konfiguration - OPTIMERAD VERSION
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyi-RP60M5AkpzuL82wE_kRK31FCnfcQuWU-9y1IA0dhYjL6lt3XN4ZZ5mVWEn6yNet/exec';
         
         let allUppdrag = [];
         let allResponses = [];
@@ -785,24 +785,27 @@
             });
         }
 
-        // Ladda alla svar
+        // Ladda alla svar - OPTIMERAD VERSION
         async function loadAllResponses() {
             allResponses = [];
             
-            for (const uppdrag of allUppdrag) {
-                try {
-                    const responses = await loadResponsesForUppdrag(uppdrag.box_id);
-                    allResponses = allResponses.concat(responses);
-                } catch (error) {
-                    console.error(`Fel vid laddning av svar för uppdrag ${uppdrag.box_id}:`, error);
-                }
+            try {
+                // Istället för att ladda varje uppdrag individuellt, 
+                // ladda ALLA svar på en gång från hela responses-sheetet
+                const allResponsesData = await loadAllResponsesAtOnce();
+                allResponses = allResponsesData;
+                filteredResponses = [...allResponses];
+                
+                console.log(`Laddade ${allResponses.length} svar totalt`);
+            } catch (error) {
+                console.error('Fel vid laddning av alla svar:', error);
+                allResponses = [];
+                filteredResponses = [];
             }
-            
-            filteredResponses = [...allResponses];
         }
 
-        // Ladda svar för specifikt uppdrag
-        function loadResponsesForUppdrag(boxId) {
+        // Ny funktion som laddar alla svar på en gång
+        function loadAllResponsesAtOnce() {
             return new Promise((resolve, reject) => {
                 const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
                 window[callbackName] = function(data) {
@@ -817,7 +820,8 @@
                             huvudansvar: row[3],
                             stöd: row[4],
                             kommentar: row[5]
-                        }));
+                        })).filter(response => response.timestamp && response.session_id); // Filtrera bort tomma rader
+                        
                         resolve(responses);
                     } else {
                         resolve([]);
@@ -825,7 +829,8 @@
                 };
                 
                 const script = document.createElement('script');
-                script.src = `${API_URL}?action=get_statistics&box_id=${boxId}&callback=${callbackName}`;
+                // Ladda ALLA svar utan att specificera box_id
+                script.src = `${API_URL}?action=get_all_responses&callback=${callbackName}`;
                 script.onerror = () => {
                     delete window[callbackName];
                     document.head.removeChild(script);
