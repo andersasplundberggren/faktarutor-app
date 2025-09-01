@@ -692,6 +692,205 @@
                     document.head.appendChild(script);
                 });
 
+                console.log('Response data:', result);
+                
+                if (result.success) {
+                    document.getElementById(`message_${boxId}`).innerHTML = '<div class="message success">✅ Svar sparat!</div>';
+                    
+                    // Spara svaren lokalt
+                    savedAnswers[boxId.toString()] = {
+                        q1_answer: q1Answer,
+                        q2_answer: q2Answer,
+                        q3_answer: q3Answer
+                    };
+                    localStorage.setItem('savedAnswers', JSON.stringify(savedAnswers));
+                    
+                    // Uppdatera completion status
+                    completedBoxes.add(boxId.toString());
+                    localStorage.setItem('completedBoxes', JSON.stringify([...completedBoxes]));
+                    
+                    const statusElement = document.getElementById(`status_${boxId}`);
+                    statusElement.classList.add('completed');
+                    statusElement.innerHTML = '✓';
+                    
+                    // Ta bort redigeringsläge
+                    const factBox = document.getElementById(`fact-box-${boxId}`);
+                    factBox.classList.remove('edit-mode');
+                    
+                    // Växla knappar
+                    submitButton.style.display = 'none';
+                    submitButton.innerHTML = 'Skicka svar';
+                    document.querySelector(`#fact-box-${boxId} .edit-button`).style.display = 'inline-block';
+                    document.querySelector(`#fact-box-${boxId} .delete-button`).style.display = 'inline-block';
+                    
+                    // Inaktivera alla inputs i denna faktaruta
+                    const inputs = factBox.querySelectorAll('input, textarea');
+                    inputs.forEach(input => input.disabled = true);
+                    
+                    updateProgress();
+                    
+                    // Kolla om alla faktarutor är klara
+                    if (completedBoxes.size === factBoxes.length) {
+                        setTimeout(() => {
+                            document.getElementById('final-message').style.display = 'block';
+                            document.getElementById('final-message').scrollIntoView({ behavior: 'smooth' });
+                        }, 1000);
+                    }
+                } else {
+                    document.getElementById(`message_${boxId}`).innerHTML = `<div class="message error">❌ Fel: ${result.error || 'Kunde inte spara svar'}</div>`;
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Skicka svar';
+                }
+            } catch (error) {
+                console.error('Fel vid sparande:', error);
+                document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Något gick fel. Kontrollera internetanslutningen och försök igen.</div>';
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Skicka svar';
+            }
+        }
+
+        // Redigera svar
+        function editAnswers(boxId) {
+            const factBox = document.getElementById(`fact-box-${boxId}`);
+            
+            // Aktivera alla inputs
+            const inputs = factBox.querySelectorAll('input, textarea');
+            inputs.forEach(input => input.disabled = false);
+            
+            // Lägg till redigeringsläge visuellt
+            factBox.classList.add('edit-mode');
+            
+            // Växla knappar
+            document.querySelector(`#fact-box-${boxId} .submit-button`).style.display = 'inline-block';
+            document.querySelector(`#fact-box-${boxId} .submit-button`).innerHTML = 'Uppdatera svar';
+            document.querySelector(`#fact-box-${boxId} .edit-button`).style.display = 'none';
+            document.querySelector(`#fact-box-${boxId} .delete-button`).style.display = 'none';
+            
+            // Visa meddelande
+            document.getElementById(`message_${boxId}`).innerHTML = '<div class="message">🔧 Redigeringsläge aktiverat. Gör dina ändringar och klicka på "Uppdatera svar".</div>';
+        }
+
+        // Ta bort svar
+        async function deleteAnswers(boxId) {
+            if (!confirm('Är du säker på att du vill ta bort ditt svar för denna faktaruta?')) {
+                return;
+            }
+
+            const deleteButton = document.querySelector(`#fact-box-${boxId} .delete-button`);
+            deleteButton.disabled = true;
+            deleteButton.innerHTML = 'Tar bort...';
+
+            try {
+                // Skicka borttagningsförfrågan
+                const params = new URLSearchParams({
+                    action: 'delete_response',
+                    session_id: sessionId,
+                    box_id: boxId
+                }).toString();
+                
+                const result = await new Promise((resolve, reject) => {
+                    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+                    window[callbackName] = function(data) {
+                        delete window[callbackName];
+                        document.head.removeChild(script);
+                        resolve(data);
+                    };
+                    
+                    const script = document.createElement('script');
+                    script.src = `${API_URL}?callback=${callbackName}&${params}`;
+                    script.onerror = function() {
+                        delete window[callbackName];
+                        document.head.removeChild(script);
+                        reject(new Error('Script loading failed'));
+                    };
+                    document.head.appendChild(script);
+                });
+
+                if (result.success) {
+                    // Ta bort från lokala variabler
+                    completedBoxes.delete(boxId.toString());
+                    delete savedAnswers[boxId.toString()];
+                    localStorage.setItem('completedBoxes', JSON.stringify([...completedBoxes]));
+                    localStorage.setItem('savedAnswers', JSON.stringify(savedAnswers));
+                    
+                    // Återställ formuläret
+                    const factBox = document.getElementById(`fact-box-${boxId}`);
+                    factBox.classList.remove('edit-mode');
+                    
+                    // Rensa alla inputs
+                    const inputs = factBox.querySelectorAll('input, textarea');
+                    inputs.forEach(input => {
+                        if (input.type === 'radio' || input.type === 'checkbox') {
+                            input.checked = false;
+                            input.disabled = false;
+                        } else {
+                            input.value = '';
+                            input.disabled = false;
+                        }
+                        input.closest('.option-item')?.classList.remove('selected');
+                    });
+                    
+                    // Uppdatera status
+                    const statusElement = document.getElementById(`status_${boxId}`);
+                    statusElement.classList.remove('completed');
+                    statusElement.innerHTML = '';
+                    
+                    // Växla knappar
+                    document.querySelector(`#fact-box-${boxId} .submit-button`).style.display = 'inline-block';
+                    document.querySelector(`#fact-box-${boxId} .submit-button`).innerHTML = 'Skicka svar';
+                    document.querySelector(`#fact-box-${boxId} .edit-button`).style.display = 'none';
+                    document.querySelector(`#fact-box-${boxId} .delete-button`).style.display = 'none';
+                    
+                    document.getElementById(`message_${boxId}`).innerHTML = '<div class="message success">✅ Svar borttaget!</div>';
+                    updateProgress();
+                } else {
+                    document.getElementById(`message_${boxId}`).innerHTML = `<div class="message error">❌ Fel: ${result.error || 'Kunde inte ta bort svar'}</div>`;
+                }
+            } catch (error) {
+                console.error('Fel vid borttagning:', error);
+                document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Något gick fel vid borttagning.</div>';
+            } finally {
+                deleteButton.disabled = false;
+                deleteButton.innerHTML = 'Ta bort svar';
+            }
+        }
+
+            try {
+                const payload = {
+                    timestamp: new Date().toISOString(),
+                    session_id: sessionId,
+                    box_id: boxId,
+                    q1_answer: q1Answer,
+                    q2_answer: q2Answer,
+                    q3_answer: q3Answer
+                };
+
+                console.log('Skickar data:', payload);
+
+                // Använd JSONP för POST-request (genom att koda data som GET-parametrar)
+                const params = new URLSearchParams({
+                    action: 'save_response',
+                    ...payload
+                }).toString();
+                
+                const result = await new Promise((resolve, reject) => {
+                    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+                    window[callbackName] = function(data) {
+                        delete window[callbackName];
+                        document.head.removeChild(script);
+                        resolve(data);
+                    };
+                    
+                    const script = document.createElement('script');
+                    script.src = `${API_URL}?callback=${callbackName}&${params}`;
+                    script.onerror = function() {
+                        delete window[callbackName];
+                        document.head.removeChild(script);
+                        reject(new Error('Script loading failed'));
+                    };
+                    document.head.appendChild(script);
+                });
+
                 if (result.success) {
                     // Ta bort från lokala variabler
                     completedBoxes.delete(boxId.toString());
