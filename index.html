@@ -9,64 +9,62 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#333;line-height:1.6}
-    .header{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);padding:1rem 0;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,.2)}
-    .header-content{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;justify-content:space-between;align-items:center}
-    .logo{height:40px}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#1f2937}
+    .header{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);padding:.6rem 0;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,.2)}
+    .header-content{max-width:1100px;margin:0 auto;padding:0 1rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem}
+    .logo{height:30px}
     .logo img{height:100%;width:auto;object-fit:contain}
-    .progress-container{display:flex;align-items:center;gap:1rem}
-    .progress-text{font-weight:500;color:#4a5568}
-    .progress-bar{width:200px;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}
-    .progress-fill{height:100%;background:linear-gradient(90deg,#4c51bf,#667eea);border-radius:4px;transition:width .3s ease;width:0%}
-    .container{max-width:800px;margin:0 auto;padding:2rem}
-    .welcome-card{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-radius:16px;padding:2rem;margin-bottom:2rem;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.1)}
-    .welcome-card h1{font-size:2.2rem;font-weight:700;margin-bottom:1rem;background:linear-gradient(135deg,#4c51bf,#667eea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .welcome-card p{font-size:1.05rem;color:#64748b;margin-bottom:1.5rem}
-    .fact-box{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-radius:20px;padding:2rem;margin-bottom:2rem;box-shadow:0 25px 50px rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.2);opacity:0;transform:translateY(30px);animation:slideIn .6s ease forwards}
-    @keyframes slideIn{to{opacity:1;transform:translateY(0)}}
-    .fact-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-    .fact-number{background:linear-gradient(135deg,#4c51bf,#667eea);color:#fff;padding:.4rem .8rem;border-radius:20px;font-weight:600;font-size:.9rem}
-    .completion-status{width:24px;height:24px;border-radius:50%;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;transition:all .3s ease}
-    .completion-status.completed{background:#10b981;border-color:#10b981;color:#fff}
-    .fact-box h2{font-size:1.5rem;font-weight:600;margin-bottom:.75rem;color:#1a202c}
-    .fact-content{font-size:1rem;line-height:1.8;color:#4a5568;margin-bottom:1.25rem;padding:1rem;background:#f8fafc;border-radius:12px;border-left:4px solid #4c51bf}
-    .question{margin-bottom:1.25rem;padding:1rem;background:rgba(248,250,252,.8);border-radius:12px;border:1px solid rgba(203,213,225,.5)}
-    .question.required{border-left:4px solid #dc2626}
-    .question h4{font-size:1rem;font-weight:600;margin-bottom:.75rem;color:#374151;display:flex;align-items:center;gap:.5rem}
-    .required-indicator{color:#dc2626;font-weight:700}
-    .question-number{background:#4c51bf;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600}
-    .options{display:grid;gap:.6rem;margin-top:.25rem}
-    .option-item{display:flex;align-items:center;padding:.7rem .9rem;background:#fff;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;transition:all .2s ease}
-    .option-item:hover{border-color:#4c51bf;background:#f8fafc}
-    .option-item input{margin-right:.7rem;transform:scale(1.15);accent-color:#4c51bf}
-    .option-item.selected{background:#eef2ff;border-color:#4c51bf;font-weight:500}
-    textarea{width:100%;min-height:100px;padding:1rem;border:2px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:1rem;resize:vertical;transition:border-color .2s ease;background:#fff}
-    textarea:focus{outline:none;border-color:#4c51bf;box-shadow:0 0 0 3px rgba(76,81,191,.1)}
-    .button-group{display:flex;gap:1rem;margin-top:1rem;align-items:center}
-    .submit-button,.edit-button,.delete-button{padding:.9rem 1.4rem;border:none;border-radius:12px;cursor:pointer;font-size:1rem;font-weight:600;transition:all .3s ease}
-    .submit-button{background:linear-gradient(135deg,#4c51bf,#667eea);color:#fff}
-    .submit-button:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(76,81,191,.3)}
-    .edit-button{background:linear-gradient(135deg,#059669,#10b981);color:#fff}
-    .edit-button:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(16,185,129,.3)}
-    .delete-button{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff}
-    .delete-button:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(220,38,38,.3)}
-    .submit-button:disabled,.edit-button:disabled,.delete-button:disabled{background:#94a3b8;cursor:not-allowed;transform:none}
-    .message{margin-top:.75rem;padding:.75rem;border-radius:8px;font-weight:500;text-align:center}
-    .success{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
-    .error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
-    .loading{display:none;text-align:center;padding:3rem}
-    .spinner{width:40px;height:40px;border:4px solid #f3f4f6;border-top:4px solid #4c51bf;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
-    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-    .final-message{display:none;text-align:center;padding:2rem;background:rgba(255,255,255,.95);border-radius:20px;margin:2rem 0}
-    .final-message h2{color:#10b981;font-size:1.6rem;margin-bottom:.5rem}
-    .edit-mode{background:#fff7ed !important;border:2px solid #fb923c !important}
+    .progress-container{display:flex;align-items:center;gap:.6rem;white-space:nowrap}
+    .progress-text{font-weight:500;color:#475569;font-size:.9rem}
+    .progress-bar{width:140px;height:6px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#4c51bf,#667eea);border-radius:999px;transition:width .25s ease;width:0%}
+    .container{max-width:1100px;margin:0 auto;padding:1rem}
+    .welcome{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:rgba(255,255,255,.9);border-radius:14px;padding:1rem 1.25rem;margin:0 0 12px 0}
+    .welcome h1{font-size:1.25rem;font-weight:700;background:linear-gradient(135deg,#4c51bf,#667eea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .welcome p{color:#64748b;font-size:.95rem}
+    .quick-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+    .chip{border:1px solid #e2e8f0;background:#fff;border-radius:999px;padding:.35rem .75rem;font-size:.85rem;color:#334155}
+    .list{display:grid;grid-template-columns:1fr;gap:.6rem}
+    /* Compact accordion */
+    details.fact{background:rgba(255,255,255,.94);border:1px solid rgba(226,232,240,.9);border-radius:12px;overflow:hidden}
+    details.fact[open]{box-shadow:0 8px 24px rgba(0,0,0,.08)}
+    summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem}
+    summary::-webkit-details-marker{display:none}
+    .badge{background:linear-gradient(135deg,#4c51bf,#667eea);color:#fff;font-weight:700;font-size:.8rem;border-radius:999px;padding:.2rem .55rem}
+    .title{flex:1;font-weight:600}
+    .done{width:22px;height:22px;border-radius:999px;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+    .done.ok{background:#10b981;border-color:#10b981;color:#fff}
+    .content{padding:.75rem 1rem 1rem 1rem;border-top:1px solid #eef2f7}
+    .fact-text{font-size:.95rem;color:#475569;background:#f8fafc;border:1px solid #eef2f7;border-radius:10px;padding:.6rem .75rem;margin:.4rem 0 1rem 0}
+    /* Kompakt frågor */
+    .q{margin:.6rem 0;padding:.6rem .6rem;border:1px solid #e5e7eb;border-radius:10px;background:rgba(248,250,252,.7)}
+    .q.required{border-left:3px solid #dc2626}
+    .q h4{display:flex;align-items:center;gap:.45rem;font-size:.95rem;margin-bottom:.35rem;color:#334155}
+    .qnum{background:#4c51bf;color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem}
+    .req{color:#dc2626;font-weight:700}
+    .opts{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.25rem}
+    .opt{display:inline-flex;align-items:center;gap:.45rem;border:1px solid #e2e8f0;background:#fff;border-radius:999px;padding:.35rem .6rem;cursor:pointer;user-select:none}
+    .opt input{accent-color:#4c51bf;transform:scale(1.05)}
+    .opt.selected{background:#eef2ff;border-color:#4c51bf}
+    textarea{width:100%;min-height:80px;padding:.65rem;border:1px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:.95rem;resize:vertical;background:#fff}
+    textarea:focus{outline:none;border-color:#4c51bf;box-shadow:0 0 0 3px rgba(76,81,191,.12)}
+    .btns{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
+    .btn{padding:.6rem .9rem;border:none;border-radius:10px;font-weight:600;cursor:pointer}
+    .primary{background:linear-gradient(135deg,#4c51bf,#667eea);color:#fff}
+    .secondary{background:linear-gradient(135deg,#059669,#10b981);color:#fff}
+    .ghost{background:#fff;border:1px solid #e2e8f0;color:#334155}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .msg{margin-top:.5rem;padding:.5rem;border-radius:8px;text-align:center;font-weight:500}
+    .ok{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+    .err{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+    .footer-bar{position:sticky;bottom:8px;display:flex;justify-content:flex-end;max-width:1100px;margin:12px auto 0;pointer-events:none}
+    .footer-bar .btn{pointer-events:auto}
+    /* små skärmar */
     @media (max-width:768px){
-      .container{padding:1rem}
-      .welcome-card{padding:1.25rem}
-      .header-content{padding:0 1rem}
-      .progress-bar{width:100px}
-      .button-group{flex-direction:column;align-items:stretch}
-      .submit-button,.edit-button,.delete-button{width:100%}
+      .header-content{padding:0 .75rem}
+      .progress-bar{width:110px}
+      .container{padding:.75rem}
+      .welcome{flex-direction:column;align-items:flex-start}
     }
   </style>
 </head>
@@ -78,212 +76,212 @@
       </div>
       <div class="progress-container">
         <span class="progress-text">Framsteg: <span id="progress-text">0/0</span></span>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progress-fill"></div>
-        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
       </div>
     </div>
   </div>
 
   <div class="container">
-    <div class="welcome-card">
-      <h1>Politiska uppdrag 2026</h1>
-      <p>Här presenteras de 24 uppdragen från mål och budget 2026.</p>
+    <div class="welcome">
+      <div>
+        <h1>Politiska uppdrag 2026</h1>
+        <p>Kompakt vy – öppna ett uppdrag i taget, spara och hoppa vidare.</p>
+      </div>
+      <div class="quick-actions">
+        <span class="chip" id="jump-next">Nästa ej besvarade ↦</span>
+        <span class="chip" id="toggle-all">Expandera alla</span>
+      </div>
     </div>
 
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <p>Laddar faktarutor...</p>
-    </div>
+    <div id="list" class="list"></div>
 
-    <div id="content"></div>
-
-    <div class="final-message" id="final-message">
-      <h2>Tack för dina svar.</h2>
-      <p>Du har nu lämnat in dina tankar kring de politiska uppdragen 2026.</p>
+    <div class="footer-bar">
+      <button id="global-next" class="btn primary">Spara & nästa ↦</button>
     </div>
   </div>
 
   <script>
-    // ====== KONFIG ======
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzyiWEx_vT0n5ydQdA3u5C35D-O69JNBLkYGEWfRu8gKGxEsHodujZjYY6EQ9Vxlk0S/exec'; // t.ex. din befintliga webapp-URL
-    // ====================
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzyiWEx_vT0n5ydQdA3u5C35D-O69JNBLkYGEWfRu8gKGxEsHodujZjYY6EQ9Vxlk0S/exec';
 
-    // Enkel per-enhet "inloggning": sessions-ID i localStorage
     let sessionId = localStorage.getItem('sessionId');
     if (!sessionId) {
-      sessionId = 'user_' + Math.random().toString(36).slice(2, 9) + '_' + Date.now();
+      sessionId = 'user_' + Math.random().toString(36).slice(2,9) + '_' + Date.now();
       localStorage.setItem('sessionId', sessionId);
     }
 
-    // Loka lagring av svar + response_id för att möjliggöra uppdatering/radering
     let factBoxes = [];
     let completedBoxes = new Set(JSON.parse(localStorage.getItem('completedBoxes') || '[]'));
     // savedAnswers[boxId] = { q1_answer, q2_answer, q3_answer, response_id }
     let savedAnswers = JSON.parse(localStorage.getItem('savedAnswers') || '{}');
 
-    // ====== Hjälpfunktion för JSONP ======
+    // JSONP helper
     function jsonp(url){
       return new Promise((resolve, reject) => {
-        const cb = 'jsonp_cb_' + Math.round(Math.random()*1e9);
+        const cb = 'cb_' + Math.round(Math.random()*1e9);
         const script = document.createElement('script');
         const sep = url.includes('?') ? '&' : '?';
-        window[cb] = (data) => {
-          delete window[cb];
-          document.head.removeChild(script);
-          resolve(data);
-        };
-        script.onerror = () => {
-          delete window[cb];
-          document.head.removeChild(script);
-          reject(new Error('JSONP load error'));
-        };
+        window[cb] = (data) => { delete window[cb]; document.head.removeChild(script); resolve(data); };
+        script.onerror = () => { delete window[cb]; document.head.removeChild(script); reject(new Error('JSONP error')); };
         script.src = `${url}${sep}callback=${cb}`;
         document.head.appendChild(script);
       });
     }
 
-    // ====== Ladda faktarutor ======
+    // Load fact boxes
     async function loadFactBoxes(){
+      const list = document.getElementById('list');
+      list.innerHTML = '<div style="padding:1rem;text-align:center;color:#64748b">Laddar…</div>';
       try{
-        document.getElementById('loading').style.display = 'block';
         const data = await jsonp(`${API_URL}?action=get_fact_boxes`);
         if(Array.isArray(data) && data.length){
           factBoxes = data;
-          displayFactBoxes(factBoxes);
+          renderList();
           updateProgress();
-        }else if(data && data.error){
-          document.getElementById('content').innerHTML = `<div class="message error">Fel: ${data.error}</div>`;
-        }else{
-          document.getElementById('content').innerHTML = '<div class="message error">Kunde inte ladda faktarutor. Kontrollera Google Sheet.</div>';
+          openFirstIncomplete();
+        } else {
+          list.innerHTML = '<div class="msg err">Kunde inte ladda uppdrag.</div>';
         }
-      }catch(err){
-        console.error(err);
-        document.getElementById('content').innerHTML = '<div class="message error">Något gick fel vid laddning av faktarutor.</div>';
-      }finally{
-        document.getElementById('loading').style.display = 'none';
+      }catch(e){
+        console.error(e);
+        list.innerHTML = '<div class="msg err">Tekniskt fel vid laddning.</div>';
       }
     }
 
-    // ====== Rendera UI ======
-    function displayFactBoxes(items){
-      const content = document.getElementById('content');
-      content.innerHTML = '';
-      document.getElementById('progress-text').textContent = `${completedBoxes.size}/${items.length}`;
-
-      items.forEach((box, i) => {
+    function renderList(){
+      const list = document.getElementById('list');
+      list.innerHTML = '';
+      factBoxes.forEach((box, i) => {
         const boxId = box.box_id;
-        const isCompleted = completedBoxes.has(String(boxId));
         const saved = savedAnswers[String(boxId)] || {};
+        const done = completedBoxes.has(String(boxId));
 
-        const root = document.createElement('div');
-        root.className = 'fact-box';
-        root.style.animationDelay = `${i*0.08}s`;
-        root.id = `fact-box-${boxId}`;
+        const det = document.createElement('details');
+        det.className = 'fact';
+        det.id = `fact-${boxId}`;
+        // bara första (eller första ej besvarade) öppnas senare via openFirstIncomplete()
 
-        const q2Opts = (box.q2_options || '').split(',').map(s=>s.trim()).filter(Boolean);
-        const q3Placeholder = box.q3_placeholder || 'Skriv ditt svar här...';
-
-        root.innerHTML = `
-          <div class="fact-header">
-            <div class="fact-number">Faktaruta ${boxId}</div>
-            <div class="completion-status ${isCompleted ? 'completed' : ''}" id="status_${boxId}">${isCompleted ? '✓' : ''}</div>
-          </div>
-
-          <h2>${box.title || ''}</h2>
-          <div class="fact-content">${box.content || ''}</div>
-
-          <div class="question required">
-            <h4><span class="question-number">1</span>${box.q1_text} <span class="required-indicator">*</span></h4>
-            <div class="options">
-              ${(box.q1_options || '').split(',').map(opt=>{
-                const val = opt.trim(); if(!val) return '';
-                const checked = saved.q1_answer === val ? 'checked' : '';
-                const dis = isCompleted ? 'disabled' : '';
-                const id = `q1_${boxId}_${val.replace(/\s+/g,'_')}`;
-                return `
-                  <label class="option-item">
-                    <input type="radio" name="q1_${boxId}" id="${id}" value="${val}" ${checked} ${dis}>
-                    <span>${val}</span>
-                  </label>
-                `;
-              }).join('')}
-            </div>
-            <div style="font-size:.9rem;color:#64748b;margin-top:.25rem">Obligatorisk fråga</div>
-          </div>
-
-          <div class="question">
-            <h4><span class="question-number">2</span>${box.q2_text} <span style="font-size:.9rem;color:#64748b">(Valfritt – välj flera)</span></h4>
-            <div class="options">
-              ${q2Opts.map(opt=>{
-                const val = opt;
-                const checked = (saved.q2_answer || '').split(',').map(s=>s.trim()).includes(val) ? 'checked' : '';
-                const dis = isCompleted ? 'disabled' : '';
-                const id = `q2_${boxId}_${val.replace(/\s+/g,'_')}`;
-                return `
-                  <label class="option-item">
-                    <input type="checkbox" name="q2_${boxId}" id="${id}" value="${val}" ${checked} ${dis}>
-                    <span>${val}</span>
-                  </label>
-                `;
-              }).join('')}
-            </div>
-          </div>
-
-          <div class="question">
-            <h4><span class="question-number">3</span>${box.q3_text} <span style="font-size:.9rem;color:#64748b">(Valfritt)</span></h4>
-            <textarea id="q3_${boxId}" placeholder="${q3Placeholder}" rows="4" ${isCompleted ? 'disabled' : ''}>${saved.q3_answer || ''}</textarea>
-          </div>
-
-          <div class="button-group">
-            <button class="submit-button" id="submit_${boxId}" onclick="submitAnswers(${boxId})" style="${isCompleted ? 'display:none' : ''}">
-              Skicka svar
-            </button>
-            <button class="edit-button" id="edit_${boxId}" onclick="editAnswers(${boxId})" style="${isCompleted ? '' : 'display:none'}">
-              Redigera svar
-            </button>
-            <button class="delete-button" id="delete_${boxId}" onclick="deleteAnswers(${boxId})" style="${isCompleted ? '' : 'display:none'}">
-              Ta bort svar
-            </button>
-          </div>
-          <div id="message_${boxId}"></div>
+        const sum = document.createElement('summary');
+        sum.innerHTML = `
+          <span class="badge">${boxId}</span>
+          <span class="title">${box.title || ''}</span>
+          <span class="done ${done ? 'ok':''}" id="st_${boxId}">${done ? '✓':''}</span>
         `;
 
-        content.appendChild(root);
+        const content = document.createElement('div');
+        content.className = 'content';
+        const q2Opts = (box.q2_options || '').split(',').map(s=>s.trim()).filter(Boolean);
+        const q1Opts = (box.q1_options || '').split(',').map(s=>s.trim()).filter(Boolean);
+
+        content.innerHTML = `
+          <div class="fact-text">${box.content || ''}</div>
+
+          <div class="q required">
+            <h4><span class="qnum">1</span>${box.q1_text} <span class="req">*</span></h4>
+            <div class="opts" id="q1c_${boxId}">
+              ${q1Opts.map(v=>{
+                const checked = saved.q1_answer === v ? 'checked' : '';
+                const dis = done ? 'disabled':'';
+                const id = `q1_${boxId}_${v.replace(/\s+/g,'_')}`;
+                return `
+                  <label class="opt ${checked?'selected':''}"><input type="radio" name="q1_${boxId}" id="${id}" value="${v}" ${checked} ${dis}> ${v}</label>
+                `;
+              }).join('')}
+            </div>
+            <div style="font-size:.85rem;color:#6b7280;margin-top:.15rem">Obligatorisk fråga</div>
+          </div>
+
+          <div class="q">
+            <h4><span class="qnum">2</span>${box.q2_text} <span style="font-size:.85rem;color:#6b7280">(valfritt)</span></h4>
+            <div class="opts" id="q2c_${boxId}">
+              ${q2Opts.map(v=>{
+                const checked = (saved.q2_answer || '').split(',').map(s=>s.trim()).includes(v) ? 'checked' : '';
+                const dis = done ? 'disabled':'';
+                const id = `q2_${boxId}_${v.replace(/\s+/g,'_')}`;
+                return `
+                  <label class="opt ${checked?'selected':''}"><input type="checkbox" name="q2_${boxId}" id="${id}" value="${v}" ${checked} ${dis}> ${v}</label>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <div class="q">
+            <h4><span class="qnum">3</span>${box.q3_text} <span style="font-size:.85rem;color:#6b7280">(valfritt)</span></h4>
+            <textarea id="q3_${boxId}" rows="3" ${done?'disabled':''}>${saved.q3_answer || ''}</textarea>
+          </div>
+
+          <div class="btns">
+            <button class="btn primary" id="btn_submit_${boxId}" onclick="submitAnswers(${boxId})" style="${done?'display:none':''}">Spara</button>
+            <button class="btn secondary" id="btn_edit_${boxId}" onclick="editAnswers(${boxId})" style="${done?'':'display:none'}">Redigera</button>
+            <button class="btn ghost" onclick="saveAndNext(${boxId})">Spara & nästa ↦</button>
+          </div>
+          <div class="msg" id="msg_${boxId}" style="display:none"></div>
+        `;
+
+        det.appendChild(sum);
+        det.appendChild(content);
+        list.appendChild(det);
       });
 
-      // selected-stil
-      document.querySelectorAll('.option-item input[type="radio"]').forEach(inp=>{
-        if(inp.checked) inp.closest('.option-item').classList.add('selected');
+      // pill-selected styling
+      document.querySelectorAll('.opt input[type="radio"]').forEach(inp=>{
+        if(inp.checked) inp.closest('.opt').classList.add('selected');
         inp.addEventListener('change', function(){
           const name = this.name;
-          document.querySelectorAll(`input[name="${name}"]`).forEach(r => r.closest('.option-item')?.classList.remove('selected'));
-          this.closest('.option-item')?.classList.add('selected');
+          document.querySelectorAll(`input[name="${name}"]`).forEach(r => r.closest('.opt')?.classList.remove('selected'));
+          this.closest('.opt')?.classList.add('selected');
         });
       });
-      document.querySelectorAll('.option-item input[type="checkbox"]').forEach(inp=>{
-        if(inp.checked) inp.closest('.option-item').classList.add('selected');
+      document.querySelectorAll('.opt input[type="checkbox"]').forEach(inp=>{
+        if(inp.checked) inp.closest('.opt').classList.add('selected');
         inp.addEventListener('change', function(){
-          this.closest('.option-item')?.classList.toggle('selected', this.checked);
+          this.closest('.opt')?.classList.toggle('selected', this.checked);
+        });
+      });
+
+      // Expandera-funktion
+      document.getElementById('toggle-all').onclick = () => {
+        const all = Array.from(document.querySelectorAll('details.fact'));
+        const anyClosed = all.some(d => !d.open);
+        all.forEach(d => d.open = anyClosed); // öppna alla om någon är stängd, annars stäng alla
+      };
+
+      document.getElementById('jump-next').onclick = () => jumpToNextIncomplete();
+
+      document.getElementById('global-next').onclick = () => {
+        // försök spara den öppna rutan om någon är öppen och q1 ifylld, annars hoppa
+        const open = document.querySelector('details.fact[open]');
+        if (!open) return jumpToNextIncomplete();
+        const boxId = Number(open.id.replace('fact-',''));
+        saveAndNext(boxId);
+      };
+
+      // endast en åt gången (accordion)
+      document.querySelectorAll('details.fact').forEach(d=>{
+        d.addEventListener('toggle', e=>{
+          if(d.open){
+            document.querySelectorAll('details.fact').forEach(o=>{ if(o!==d) o.open=false; });
+          }
         });
       });
     }
 
-    // ====== Skicka / Uppdatera svar ======
+    function showMsg(boxId, text, ok=true){
+      const el = document.getElementById(`msg_${boxId}`);
+      el.className = `msg ${ok?'ok':'err'}`;
+      el.textContent = text;
+      el.style.display = 'block';
+      setTimeout(()=>{ el.style.display='none'; }, 2000);
+    }
+
     async function submitAnswers(boxId){
       const q1 = document.querySelector(`input[name="q1_${boxId}"]:checked`)?.value || '';
       const q2 = Array.from(document.querySelectorAll(`input[name="q2_${boxId}"]:checked`)).map(cb=>cb.value).join(', ');
       const q3 = document.getElementById(`q3_${boxId}`).value || '';
+      if(!q1){ showMsg(boxId,'⚠️ Fråga 1 är obligatorisk.',false); return; }
 
-      if(!q1){
-        document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">⚠️ Vänligen svara på fråga 1 (obligatorisk).</div>';
-        return;
-      }
-
-      const btn = document.getElementById(`submit_${boxId}`);
+      const btn = document.getElementById(`btn_submit_${boxId}`);
       const isUpdate = Boolean(savedAnswers[String(boxId)]?.response_id);
-      btn.disabled = true;
-      btn.textContent = isUpdate ? 'Uppdaterar...' : 'Skickar...';
+      if(btn){ btn.disabled = true; btn.textContent = isUpdate ? 'Uppdaterar…' : 'Sparar…'; }
 
       try{
         const payload = {
@@ -291,134 +289,105 @@
           timestamp: new Date().toISOString(),
           session_id: sessionId,
           box_id: boxId,
-          q1_answer: q1,
-          q2_answer: q2,
-          q3_answer: q3
+          q1_answer: q1, q2_answer: q2, q3_answer: q3
         };
+        if(isUpdate){ payload.response_id = savedAnswers[String(boxId)].response_id; }
 
-        // Om vi redan har response_id (rad-id) – skicka med det för en exakt uppdatering
-        if(isUpdate){
-          payload.response_id = savedAnswers[String(boxId)].response_id;
-        }
-
-        const url = `${API_URL}?` + new URLSearchParams(payload).toString();
-        const res = await jsonp(url);
-
+        const res = await jsonp(`${API_URL}?` + new URLSearchParams(payload).toString());
         if(res && res.success){
-          // Spara lokalt inkl response_id från servern
           const responseId = res.response_id || savedAnswers[String(boxId)]?.response_id || null;
-          savedAnswers[String(boxId)] = { q1_answer: q1, q2_answer: q2, q3_answer: q3, response_id: responseId };
+          savedAnswers[String(boxId)] = { q1_answer:q1, q2_answer:q2, q3_answer:q3, response_id:responseId };
           localStorage.setItem('savedAnswers', JSON.stringify(savedAnswers));
 
           completedBoxes.add(String(boxId));
           localStorage.setItem('completedBoxes', JSON.stringify(Array.from(completedBoxes)));
 
-          // Lås inputs
-          const factBox = document.getElementById(`fact-box-${boxId}`);
-          factBox.querySelectorAll('input, textarea').forEach(el=> el.disabled = true);
-          factBox.classList.remove('edit-mode');
+          // lås inputs
+          const fact = document.getElementById(`fact-${boxId}`);
+          fact.querySelectorAll('input, textarea').forEach(el=> el.disabled = true);
 
-          // UI-uppdateringar
-          document.getElementById(`status_${boxId}`).classList.add('completed');
-          document.getElementById(`status_${boxId}`).textContent = '✓';
-          document.getElementById(`message_${boxId}`).innerHTML = `<div class="message success">✅ ${isUpdate ? 'Svar uppdaterat!' : 'Svar sparat!'}</div>`;
+          // knappar
+          const submitBtn = document.getElementById(`btn_submit_${boxId}`);
+          const editBtn = document.getElementById(`btn_edit_${boxId}`);
+          if(submitBtn) submitBtn.style.display = 'none';
+          if(editBtn)   editBtn.style.display   = 'inline-block';
 
-          document.getElementById(`submit_${boxId}`).style.display = 'none';
-          document.getElementById(`edit_${boxId}`).style.display = 'inline-block';
-          document.getElementById(`delete_${boxId}`).style.display = 'inline-block';
+          // status
+          const st = document.getElementById(`st_${boxId}`);
+          st.classList.add('ok'); st.textContent = '✓';
 
+          showMsg(boxId, isUpdate ? '✅ Svar uppdaterat!' : '✅ Svar sparat!');
           updateProgress();
 
+          // visa final om allt klart
           if(completedBoxes.size === factBoxes.length){
-            setTimeout(()=>{
-              document.getElementById('final-message').style.display = 'block';
-              document.getElementById('final-message').scrollIntoView({behavior:'smooth'});
-            }, 600);
+            // öppna inte popup – låt progress visa 100% och behåll flowet
           }
+          return true;
         }else{
-          throw new Error(res?.error || 'Kunde inte spara svar');
+          showMsg(boxId, `❌ ${res?.error || 'Kunde inte spara svar'}`, false);
+          return false;
         }
-      }catch(err){
-        console.error(err);
-        document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Ett fel uppstod. Försök igen.</div>';
+      }catch(e){
+        console.error(e);
+        showMsg(boxId, '❌ Tekniskt fel. Försök igen.', false);
+        return false;
       }finally{
-        btn.disabled = false;
-        btn.textContent = isUpdate ? 'Uppdatera svar' : 'Skicka svar';
+        if(btn){ btn.disabled = false; btn.textContent = isUpdate ? 'Uppdatera' : 'Spara'; }
       }
     }
 
-    // ====== Redigera ======
     function editAnswers(boxId){
-      const factBox = document.getElementById(`fact-box-${boxId}`);
-      factBox.querySelectorAll('input, textarea').forEach(el=> el.disabled = false);
-      factBox.classList.add('edit-mode');
-      // Visa uppdatera-knapp, göm redigera/ta bort
-      const submit = document.getElementById(`submit_${boxId}`);
-      submit.style.display = 'inline-block';
-      submit.textContent = 'Uppdatera svar';
-      document.getElementById(`edit_${boxId}`).style.display = 'none';
-      document.getElementById(`delete_${boxId}`).style.display = 'none';
-      document.getElementById(`message_${boxId}`).innerHTML = '<div class="message">🔧 Redigeringsläge aktiverat. Gör dina ändringar och klicka på "Uppdatera svar".</div>';
+      const fact = document.getElementById(`fact-${boxId}`);
+      fact.open = true;
+      fact.querySelectorAll('input, textarea').forEach(el=> el.disabled = false);
+      // visa Spara-knapp igen, göm Redigera
+      const submitBtn = document.getElementById(`btn_submit_${boxId}`);
+      const editBtn = document.getElementById(`btn_edit_${boxId}`);
+      if(submitBtn){ submitBtn.style.display='inline-block'; submitBtn.textContent='Uppdatera'; }
+      if(editBtn){ editBtn.style.display='none'; }
+      showMsg(boxId, '🔧 Redigeringsläge aktiverat.');
     }
 
-    // ====== Ta bort ======
-    async function deleteAnswers(boxId){
-      if(!confirm('Är du säker på att du vill ta bort ditt svar för denna faktaruta?')) return;
+    async function saveAndNext(currentId){
+      const ok = await submitAnswers(currentId);
+      if(ok) jumpToNextIncomplete(currentId);
+    }
 
-      const delBtn = document.getElementById(`delete_${boxId}`);
-      delBtn.disabled = true;
-      delBtn.textContent = 'Tar bort...';
-
-      try{
-        const responseId = savedAnswers[String(boxId)]?.response_id || null;
-
-        const payload = {
-          action: 'delete_response',
-          session_id: sessionId,
-          box_id: boxId
-        };
-        if(responseId) payload.response_id = responseId;
-
-        const url = `${API_URL}?` + new URLSearchParams(payload).toString();
-        const res = await jsonp(url);
-
-        if(res && res.success){
-          // Rensa lokalt
-          completedBoxes.delete(String(boxId));
-          delete savedAnswers[String(boxId)];
-          localStorage.setItem('completedBoxes', JSON.stringify(Array.from(completedBoxes)));
-          localStorage.setItem('savedAnswers', JSON.stringify(savedAnswers));
-
-          const factBox = document.getElementById(`fact-box-${boxId}`);
-          factBox.classList.remove('edit-mode');
-          // Återställ inputs
-          factBox.querySelectorAll('input, textarea').forEach(el=>{
-            if(el.type==='radio' || el.type==='checkbox'){ el.checked = false; el.disabled = false; el.closest('.option-item')?.classList.remove('selected'); }
-            else { el.value = ''; el.disabled = false; }
-          });
-
-          document.getElementById(`status_${boxId}`).classList.remove('completed');
-          document.getElementById(`status_${boxId}`).textContent = '';
-          document.getElementById(`submit_${boxId}`).style.display = 'inline-block';
-          document.getElementById(`submit_${boxId}`).textContent = 'Skicka svar';
-          document.getElementById(`edit_${boxId}`).style.display = 'none';
-          document.getElementById(`delete_${boxId}`).style.display = 'none';
-          document.getElementById(`message_${boxId}`).innerHTML = '<div class="message success">✅ Svar borttaget!</div>';
-
-          updateProgress();
-        }else{
-          throw new Error(res?.error || 'Kunde inte ta bort svar');
+    function jumpToNextIncomplete(fromId=null){
+      const ids = factBoxes.map(b => b.box_id);
+      let startIndex = 0;
+      if(fromId!==null){
+        const idx = ids.indexOf(fromId);
+        startIndex = (idx>=0 ? idx+1 : 0);
+      }
+      // hitta första ej besvarade efter current, wrap runt
+      const rotated = ids.slice(startIndex).concat(ids.slice(0,startIndex));
+      const next = rotated.find(id => !completedBoxes.has(String(id)));
+      if(next===undefined){
+        // allt klart – öppna första för ev. ändring
+        if(ids.length) {
+          const d = document.getElementById(`fact-${ids[0]}`);
+          if(d){ d.open = true; d.scrollIntoView({behavior:'smooth',block:'start'}); }
         }
-      }catch(err){
-        console.error(err);
-        document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Något gick fel vid borttagning.</div>';
-      }finally{
-        delBtn.disabled = false;
-        delBtn.textContent = 'Ta bort svar';
+        return;
+      }
+      const det = document.getElementById(`fact-${next}`);
+      if(det){
+        det.open = true;
+        det.scrollIntoView({behavior:'smooth',block:'start'});
       }
     }
 
-    // ====== Progress ======
+    function openFirstIncomplete(){
+      const first = factBoxes.map(b=>b.box_id).find(id => !completedBoxes.has(String(id)));
+      const toOpen = first ?? (factBoxes[0]?.box_id);
+      if(toOpen!=null){
+        const d = document.getElementById(`fact-${toOpen}`);
+        if(d) d.open = true;
+      }
+    }
+
     function updateProgress(){
       const completed = completedBoxes.size;
       const total = factBoxes.length;
@@ -427,7 +396,7 @@
       document.getElementById('progress-fill').style.width = `${pct}%`;
     }
 
-    // Start
+    // go
     loadFactBoxes();
   </script>
 </body>
