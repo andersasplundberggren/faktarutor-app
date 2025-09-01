@@ -266,21 +266,86 @@
         }
 
         .responsibility-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
             font-size: 0.8rem;
-            font-weight: 500;
+            font-weight: 600;
+            margin: 0.2rem;
+            display: inline-block;
+            min-width: 30px;
+            text-align: center;
         }
 
         .badge-main {
             background: #dbeafe;
             color: #1e40af;
+            border: 2px solid #3b82f6;
         }
 
         .badge-support {
             background: #d1fae5;
             color: #065f46;
+            border: 2px solid #10b981;
         }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+            font-size: 0.9rem;
+        }
+
+        .matrix-table th {
+            padding: 1rem 0.5rem;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
+            font-weight: 700;
+            color: #374151;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .matrix-table th:first-child {
+            text-align: left;
+            min-width: 200px;
+            max-width: 250px;
+        }
+
+        .matrix-table td {
+            padding: 0.8rem 0.5rem;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            background: white;
+            vertical-align: middle;
+        }
+
+        .matrix-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            background: #f8fafc;
+            border-right: 2px solid #e2e8f0;
+        }
+
+        .matrix-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            min-height: 50px;
+        }
+
+        .consensus-cell {
+            background: #f0f9ff !important;
+            font-weight: 700;
+            color: #0369a1;
+        }
+
+        .consensus-high { color: #059669; }
+        .consensus-medium { color: #d97706; }
+        .consensus-low { color: #dc2626; }
 
         .text-responses {
             max-height: 400px;
@@ -671,27 +736,15 @@
             </div>
         </div>
 
-        <!-- Ansvarsmatris -->
+        <!-- Kommentarer och förslag -->
         <div class="card">
             <div class="card-header">
                 <div>
-                    <div class="card-title">Ansvarsmatris - Översikt alla uppdrag</div>
-                    <div class="card-subtitle">Huvudansvar och stödförvaltningar per uppdrag</div>
+                    <div class="card-title">💬 Kommentarer och förslag</div>
+                    <div class="card-subtitle" id="comments-subtitle">Ytterligare synpunkter från cheferna</div>
                 </div>
-            </div>
-            <div class="responsibility-matrix">
-                <table class="matrix-table" id="responsibility-matrix">
-                    <!-- Genereras dynamiskt -->
-                </table>
-            </div>
-        </div>
-
-        <!-- Kommentarer -->
-        <div class="card">
-            <div class="card-header">
                 <div>
-                    <div class="card-title">Kommentarer och förslag</div>
-                    <div class="card-subtitle">Ytterligare synpunkter från cheferna</div>
+                    <small style="color: #64748b;" id="comments-count">-</small>
                 </div>
             </div>
             <div class="text-responses" id="text-responses">
@@ -1221,11 +1274,16 @@
             });
         }
 
-        // Visa kommentarer
+        // Visa kommentarer - FIXAD VERSION
         function displayComments(responses) {
             const container = document.getElementById('text-responses');
+            const countElement = document.getElementById('comments-count');
             
-            const commentsWithText = responses.filter(r => r.kommentar && r.kommentar.trim());
+            // Filtrera kommentarer som har text
+            const commentsWithText = responses.filter(r => r.kommentar && r.kommentar.trim() && r.kommentar.trim() !== '');
+            
+            // Uppdatera räknare
+            countElement.textContent = `${commentsWithText.length} av ${responses.length} svar har kommentarer`;
             
             if (commentsWithText.length === 0) {
                 container.innerHTML = '<div class="response-item">Inga kommentarer för detta uppdrag.</div>';
@@ -1234,13 +1292,13 @@
 
             container.innerHTML = commentsWithText.map((response, index) => {
                 const uppdrag = allUppdrag.find(u => u.box_id == response.box_id);
+                const timestamp = response.timestamp ? new Date(response.timestamp).toLocaleDateString('sv-SE') : 'Okänt datum';
                 
                 return `
                     <div class="response-item">
                         <div class="response-meta">
                             <div>
-                                <strong>Deltagare ${index + 1}</strong> • 
-                                ${new Date(response.timestamp).toLocaleDateString('sv-SE')}
+                                <strong>Deltagare ${index + 1}</strong> • ${timestamp}
                             </div>
                             <div class="response-tags">
                                 <span class="response-tag">Huvudansvar: ${response.huvudansvar || 'Ej angivet'}</span>
@@ -1253,16 +1311,18 @@
             }).join('');
         }
 
-        // Skapa ansvarsmatris
+        // Skapa ansvarsmatris - FÖRBÄTTRAD VERSION
         function createResponsibilityMatrix() {
             const table = document.getElementById('responsibility-matrix');
             
             // Skapa huvud
             let headerHtml = '<thead><tr><th>Politiskt Uppdrag</th>';
-            [...allFörvaltningar].sort().forEach(förvaltning => {
+            const sortedFörvaltningar = [...allFörvaltningar].sort();
+            
+            sortedFörvaltningar.forEach(förvaltning => {
                 headerHtml += `<th>${förvaltning}</th>`;
             });
-            headerHtml += '<th>Konsensus</th></tr></thead>';
+            headerHtml += '<th>Konsensus</th><th>Antal svar</th></tr></thead>';
 
             // Skapa kropp
             let bodyHtml = '<tbody>';
@@ -1274,9 +1334,9 @@
                 const uppdragResponses = filteredResponses.filter(r => r.box_id == uppdrag.box_id);
                 if (uppdragResponses.length === 0) return;
 
-                bodyHtml += `<tr><td><strong>${uppdrag.title}</strong></td>`;
+                bodyHtml += `<tr><td><strong>${uppdrag.title}</strong><br><small style="color: #64748b;">${uppdrag.box_id}</small></td>`;
 
-                [...allFörvaltningar].sort().forEach(förvaltning => {
+                sortedFörvaltningar.forEach(förvaltning => {
                     const mainCount = uppdragResponses.filter(r => r.huvudansvar === förvaltning).length;
                     const supportCount = uppdragResponses.filter(r => r.stöd && r.stöd.includes(förvaltning)).length;
 
@@ -1295,7 +1355,10 @@
                 });
 
                 const consensus = calculateConsensus(uppdragResponses, 'huvudansvar');
-                bodyHtml += `<td><strong>${consensus}%</strong></td>`;
+                const consensusClass = consensus >= 80 ? 'consensus-high' : consensus >= 50 ? 'consensus-medium' : 'consensus-low';
+                
+                bodyHtml += `<td class="consensus-cell ${consensusClass}">${consensus}%</td>`;
+                bodyHtml += `<td class="consensus-cell">${uppdragResponses.length}</td>`;
                 bodyHtml += '</tr>';
             });
             bodyHtml += '</tbody>';
