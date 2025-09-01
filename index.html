@@ -59,6 +59,11 @@
     .err{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
     .footer-bar{position:sticky;bottom:8px;display:flex;justify-content:flex-end;max-width:1100px;margin:12px auto 0;pointer-events:none}
     .footer-bar .btn{pointer-events:auto}
+
+    /* VISUELL HINT: kort “flash” när nästa öppnas */
+    @keyframes flashBorder{0%{box-shadow:0 0 0 0 rgba(76,81,191,.35)}100%{box-shadow:0 0 0 8px rgba(76,81,191,0)}}
+    details.fact.flash{animation:flashBorder .6s ease-out 1}
+
     /* små skärmar */
     @media (max-width:768px){
       .header-content{padding:0 .75rem}
@@ -368,14 +373,19 @@
         // allt klart – öppna första för ev. ändring
         if(ids.length) {
           const d = document.getElementById(`fact-${ids[0]}`);
-          if(d){ d.open = true; d.scrollIntoView({behavior:'smooth',block:'start'}); }
+          if(d){ 
+            d.open = true; 
+            d.classList.add('flash'); 
+            setTimeout(()=>d.classList.remove('flash'), 650);
+          }
         }
         return;
       }
       const det = document.getElementById(`fact-${next}`);
       if(det){
         det.open = true;
-        det.scrollIntoView({behavior:'smooth',block:'start'});
+        det.classList.add('flash');
+        setTimeout(()=>det.classList.remove('flash'), 650);
       }
     }
 
