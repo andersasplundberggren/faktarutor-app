@@ -797,7 +797,9 @@
                 updateOverallStats();
                 createUppdragTabs();
                 generateInsights();
-                createResponsibilityMatrix();
+                createResponsibilityMatrix(); // VIKTIGT - Se till att denna anropas
+                createParticipationChart();
+                createConsensusOverviewChart();
                 
                 if (allUppdrag.length > 0) {
                     await loadUppdragData(currentUppdragId);
@@ -1313,18 +1315,28 @@
             }).join('');
         }
 
-        // Skapa ansvarsmatris - FÖRBÄTTRAD VERSION
+        // Skapa ansvarsmatris - FÖRBÄTTRAD VERSION med debugging
         function createResponsibilityMatrix() {
+            console.log('Skapar ansvarsmatris...');
             const table = document.getElementById('responsibility-matrix');
             
+            if (!table) {
+                console.error('Kan inte hitta responsibility-matrix element');
+                return;
+            }
+
+            console.log('Antal uppdrag:', allUppdrag.length);
+            console.log('Antal svar:', filteredResponses.length);
+            console.log('Förvaltningar:', [...allFörvaltningar]);
+            
             // Skapa huvud
-            let headerHtml = '<thead><tr><th>Politiskt Uppdrag</th>';
+            let headerHtml = '<thead><tr><th style="min-width: 250px;">Politiskt Uppdrag</th>';
             const sortedFörvaltningar = [...allFörvaltningar].sort();
             
             sortedFörvaltningar.forEach(förvaltning => {
-                headerHtml += `<th>${förvaltning}</th>`;
+                headerHtml += `<th style="min-width: 120px;">${förvaltning}</th>`;
             });
-            headerHtml += '<th>Konsensus</th><th>Antal svar</th></tr></thead>';
+            headerHtml += '<th style="min-width: 100px;">Konsensus</th><th style="min-width: 80px;">Svar</th></tr></thead>';
 
             // Skapa kropp
             let bodyHtml = '<tbody>';
@@ -1332,40 +1344,49 @@
                 return filteredResponses.some(r => r.box_id == uppdrag.box_id);
             });
 
-            relevantUppdrag.forEach(uppdrag => {
-                const uppdragResponses = filteredResponses.filter(r => r.box_id == uppdrag.box_id);
-                if (uppdragResponses.length === 0) return;
+            console.log('Relevanta uppdrag:', relevantUppdrag.length);
 
-                bodyHtml += `<tr><td><strong>${uppdrag.title}</strong><br><small style="color: #64748b;">${uppdrag.box_id}</small></td>`;
+            if (relevantUppdrag.length === 0) {
+                bodyHtml += '<tr><td colspan="' + (sortedFörvaltningar.length + 3) + '">Inga uppdrag med svar att visa</td></tr>';
+            } else {
+                relevantUppdrag.forEach(uppdrag => {
+                    const uppdragResponses = filteredResponses.filter(r => r.box_id == uppdrag.box_id);
+                    console.log(`Uppdrag ${uppdrag.title}: ${uppdragResponses.length} svar`);
 
-                sortedFörvaltningar.forEach(förvaltning => {
-                    const mainCount = uppdragResponses.filter(r => r.huvudansvar === förvaltning).length;
-                    const supportCount = uppdragResponses.filter(r => r.stöd && r.stöd.includes(förvaltning)).length;
+                    bodyHtml += `<tr><td><strong>${uppdrag.title}</strong><br><small style="color: #64748b;">ID: ${uppdrag.box_id}</small></td>`;
 
-                    let cellContent = '';
-                    if (mainCount > 0) {
-                        cellContent += `<span class="responsibility-badge badge-main">H: ${mainCount}</span>`;
-                    }
-                    if (supportCount > 0) {
-                        cellContent += `<span class="responsibility-badge badge-support">S: ${supportCount}</span>`;
-                    }
-                    if (!cellContent) {
-                        cellContent = '-';
-                    }
+                    sortedFörvaltningar.forEach(förvaltning => {
+                        const mainCount = uppdragResponses.filter(r => r.huvudansvar === förvaltning).length;
+                        const supportCount = uppdragResponses.filter(r => r.stöd && r.stöd.includes(förvaltning)).length;
 
-                    bodyHtml += `<td><div class="matrix-cell">${cellContent}</div></td>`;
+                        console.log(`${förvaltning}: Huvudansvar=${mainCount}, Stöd=${supportCount}`);
+
+                        let cellContent = '';
+                        if (mainCount > 0) {
+                            cellContent += `<span class="responsibility-badge badge-main">H: ${mainCount}</span>`;
+                        }
+                        if (supportCount > 0) {
+                            cellContent += `<span class="responsibility-badge badge-support">S: ${supportCount}</span>`;
+                        }
+                        if (!cellContent) {
+                            cellContent = '-';
+                        }
+
+                        bodyHtml += `<td><div class="matrix-cell">${cellContent}</div></td>`;
+                    });
+
+                    const consensus = calculateConsensus(uppdragResponses, 'huvudansvar');
+                    const consensusClass = consensus >= 80 ? 'consensus-high' : consensus >= 50 ? 'consensus-medium' : 'consensus-low';
+                    
+                    bodyHtml += `<td class="consensus-cell ${consensusClass}">${consensus}%</td>`;
+                    bodyHtml += `<td class="consensus-cell">${uppdragResponses.length}</td>`;
+                    bodyHtml += '</tr>';
                 });
-
-                const consensus = calculateConsensus(uppdragResponses, 'huvudansvar');
-                const consensusClass = consensus >= 80 ? 'consensus-high' : consensus >= 50 ? 'consensus-medium' : 'consensus-low';
-                
-                bodyHtml += `<td class="consensus-cell ${consensusClass}">${consensus}%</td>`;
-                bodyHtml += `<td class="consensus-cell">${uppdragResponses.length}</td>`;
-                bodyHtml += '</tr>';
-            });
+            }
             bodyHtml += '</tbody>';
 
             table.innerHTML = headerHtml + bodyHtml;
+            console.log('Ansvarsmatris skapad!');
         }
 
         // Generera strategiska insikter
