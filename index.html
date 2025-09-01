@@ -1,1067 +1,434 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Politiska uppdrag 2026</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            height: 40px;
-        }
-        
-        .logo img {
-            height: 100%;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .progress-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .progress-text {
-            font-weight: 500;
-            color: #4a5568;
-        }
-
-        .progress-bar {
-            width: 200px;
-            height: 8px;
-            background: #e2e8f0;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4c51bf, #667eea);
-            border-radius: 4px;
-            transition: width 0.3s ease;
-            width: 0%;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .welcome-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .welcome-card h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #4c51bf, #667eea);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .welcome-card p {
-            font-size: 1.1rem;
-            color: #64748b;
-            margin-bottom: 1.5rem;
-        }
-
-        .fact-box {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: slideIn 0.6s ease forwards;
-        }
-
-        @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fact-box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-        }
-
-        .fact-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.5rem;
-        }
-
-        .fact-number {
-            background: linear-gradient(135deg, #4c51bf, #667eea);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .completion-status {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 2px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .completion-status.completed {
-            background: #10b981;
-            border-color: #10b981;
-            color: white;
-        }
-
-        .fact-box h2 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #1a202c;
-        }
-
-        .fact-content {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #4a5568;
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: #f8fafc;
-            border-radius: 12px;
-            border-left: 4px solid #4c51bf;
-        }
-
-        .question {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: rgba(248, 250, 252, 0.8);
-            border-radius: 12px;
-            border: 1px solid rgba(203, 213, 225, 0.5);
-            transition: all 0.3s ease;
-        }
-
-        .question.required {
-            border-left: 4px solid #dc2626;
-        }
-
-        .question:hover {
-            background: rgba(241, 245, 249, 0.9);
-            border-color: #cbd5e1;
-        }
-
-        .question h4 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #374151;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .required-indicator {
-            color: #dc2626;
-            font-weight: 700;
-        }
-
-        .question-number {
-            background: #4c51bf;
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .options {
-            display: grid;
-            gap: 0.8rem;
-            margin-top: 1rem;
-        }
-
-        .option-item {
-            display: flex;
-            align-items: center;
-            padding: 0.8rem 1rem;
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .option-item:hover {
-            border-color: #4c51bf;
-            background: #f8fafc;
-        }
-
-        .option-item input {
-            margin-right: 0.75rem;
-            transform: scale(1.2);
-            accent-color: #4c51bf;
-        }
-
-        .option-item.selected {
-            background: #eef2ff;
-            border-color: #4c51bf;
-            font-weight: 500;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 100px;
-            padding: 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 1rem;
-            resize: vertical;
-            transition: border-color 0.2s ease;
-            background: white;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #4c51bf;
-            box-shadow: 0 0 0 3px rgba(76, 81, 191, 0.1);
-        }
-
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-            align-items: center;
-        }
-
-        .submit-button, .edit-button, .delete-button {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .submit-button {
-            background: linear-gradient(135deg, #4c51bf, #667eea);
-            color: white;
-        }
-
-        .submit-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(76, 81, 191, 0.3);
-        }
-
-        .edit-button {
-            background: linear-gradient(135deg, #059669, #10b981);
-            color: white;
-        }
-
-        .edit-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
-        }
-
-        .delete-button {
-            background: linear-gradient(135deg, #dc2626, #ef4444);
-            color: white;
-        }
-
-        .delete-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
-        }
-
-        .submit-button:active, .edit-button:active, .delete-button:active {
-            transform: translateY(0);
-        }
-
-        .submit-button:disabled, .edit-button:disabled, .delete-button:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .message {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 8px;
-            font-weight: 500;
-            text-align: center;
-        }
-
-        .success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        .error {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 3rem;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f4f6;
-            border-top: 4px solid #4c51bf;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .final-message {
-            display: none;
-            text-align: center;
-            padding: 3rem;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            margin: 2rem 0;
-        }
-
-        .final-message h2 {
-            color: #10b981;
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .edit-mode {
-            background: #fff7ed !important;
-            border: 2px solid #fb923c !important;
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .fact-box {
-                padding: 1.5rem;
-            }
-            
-            .header-content {
-                padding: 0 1rem;
-            }
-            
-            .progress-bar {
-                width: 100px;
-            }
-            
-            .welcome-card h1 {
-                font-size: 2rem;
-            }
-
-            .button-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .submit-button, .edit-button, .delete-button {
-                width: 100%;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Politiska uppdrag 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#333;line-height:1.6}
+    .header{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);padding:1rem 0;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,.2)}
+    .header-content{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;justify-content:space-between;align-items:center}
+    .logo{height:40px}
+    .logo img{height:100%;width:auto;object-fit:contain}
+    .progress-container{display:flex;align-items:center;gap:1rem}
+    .progress-text{font-weight:500;color:#4a5568}
+    .progress-bar{width:200px;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#4c51bf,#667eea);border-radius:4px;transition:width .3s ease;width:0%}
+    .container{max-width:800px;margin:0 auto;padding:2rem}
+    .welcome-card{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-radius:16px;padding:2rem;margin-bottom:2rem;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.1)}
+    .welcome-card h1{font-size:2.2rem;font-weight:700;margin-bottom:1rem;background:linear-gradient(135deg,#4c51bf,#667eea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .welcome-card p{font-size:1.05rem;color:#64748b;margin-bottom:1.5rem}
+    .fact-box{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-radius:20px;padding:2rem;margin-bottom:2rem;box-shadow:0 25px 50px rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.2);opacity:0;transform:translateY(30px);animation:slideIn .6s ease forwards}
+    @keyframes slideIn{to{opacity:1;transform:translateY(0)}}
+    .fact-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .fact-number{background:linear-gradient(135deg,#4c51bf,#667eea);color:#fff;padding:.4rem .8rem;border-radius:20px;font-weight:600;font-size:.9rem}
+    .completion-status{width:24px;height:24px;border-radius:50%;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;transition:all .3s ease}
+    .completion-status.completed{background:#10b981;border-color:#10b981;color:#fff}
+    .fact-box h2{font-size:1.5rem;font-weight:600;margin-bottom:.75rem;color:#1a202c}
+    .fact-content{font-size:1rem;line-height:1.8;color:#4a5568;margin-bottom:1.25rem;padding:1rem;background:#f8fafc;border-radius:12px;border-left:4px solid #4c51bf}
+    .question{margin-bottom:1.25rem;padding:1rem;background:rgba(248,250,252,.8);border-radius:12px;border:1px solid rgba(203,213,225,.5)}
+    .question.required{border-left:4px solid #dc2626}
+    .question h4{font-size:1rem;font-weight:600;margin-bottom:.75rem;color:#374151;display:flex;align-items:center;gap:.5rem}
+    .required-indicator{color:#dc2626;font-weight:700}
+    .question-number{background:#4c51bf;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600}
+    .options{display:grid;gap:.6rem;margin-top:.25rem}
+    .option-item{display:flex;align-items:center;padding:.7rem .9rem;background:#fff;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;transition:all .2s ease}
+    .option-item:hover{border-color:#4c51bf;background:#f8fafc}
+    .option-item input{margin-right:.7rem;transform:scale(1.15);accent-color:#4c51bf}
+    .option-item.selected{background:#eef2ff;border-color:#4c51bf;font-weight:500}
+    textarea{width:100%;min-height:100px;padding:1rem;border:2px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:1rem;resize:vertical;transition:border-color .2s ease;background:#fff}
+    textarea:focus{outline:none;border-color:#4c51bf;box-shadow:0 0 0 3px rgba(76,81,191,.1)}
+    .button-group{display:flex;gap:1rem;margin-top:1rem;align-items:center}
+    .submit-button,.edit-button,.delete-button{padding:.9rem 1.4rem;border:none;border-radius:12px;cursor:pointer;font-size:1rem;font-weight:600;transition:all .3s ease}
+    .submit-button{background:linear-gradient(135deg,#4c51bf,#667eea);color:#fff}
+    .submit-button:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(76,81,191,.3)}
+    .edit-button{background:linear-gradient(135deg,#059669,#10b981);color:#fff}
+    .edit-button:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(16,185,129,.3)}
+    .delete-button{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff}
+    .delete-button:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(220,38,38,.3)}
+    .submit-button:disabled,.edit-button:disabled,.delete-button:disabled{background:#94a3b8;cursor:not-allowed;transform:none}
+    .message{margin-top:.75rem;padding:.75rem;border-radius:8px;font-weight:500;text-align:center}
+    .success{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+    .error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+    .loading{display:none;text-align:center;padding:3rem}
+    .spinner{width:40px;height:40px;border:4px solid #f3f4f6;border-top:4px solid #4c51bf;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
+    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    .final-message{display:none;text-align:center;padding:2rem;background:rgba(255,255,255,.95);border-radius:20px;margin:2rem 0}
+    .final-message h2{color:#10b981;font-size:1.6rem;margin-bottom:.5rem}
+    .edit-mode{background:#fff7ed !important;border:2px solid #fb923c !important}
+    @media (max-width:768px){
+      .container{padding:1rem}
+      .welcome-card{padding:1.25rem}
+      .header-content{padding:0 1rem}
+      .progress-bar{width:100px}
+      .button-group{flex-direction:column;align-items:stretch}
+      .submit-button,.edit-button,.delete-button{width:100%}
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">
-                <img src="https://karlskoga.se/images/18.17cf90041722ce1749b5e/1640015633047/Karlskoga_liggande.png" alt="Karlskoga kommun">
-            </div>
-            <div class="progress-container">
-                <span class="progress-text">Framsteg: <span id="progress-text">0/24</span></span>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-fill"></div>
-                </div>
-            </div>
+  <div class="header">
+    <div class="header-content">
+      <div class="logo">
+        <img src="https://karlskoga.se/images/18.17cf90041722ce1749b5e/1640015633047/Karlskoga_liggande.png" alt="Karlskoga kommun">
+      </div>
+      <div class="progress-container">
+        <span class="progress-text">Framsteg: <span id="progress-text">0/0</span></span>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="welcome-card">
+      <h1>Politiska uppdrag 2026</h1>
+      <p>Här presenteras de 24 uppdragen från mål och budget 2026.</p>
     </div>
 
-    <div class="container">
-        <div class="welcome-card">
-            <h1>Politiska uppdrag 2026</h1>
-            <p>Här preseneteras de 24 uppdragen från mål och budget 2026</p>
-        </div>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Laddar faktarutor...</p>
-        </div>
-
-        <div id="content"></div>
-
-        <div class="final-message" id="final-message">
-            <h2>Tack för dina svar.</h2>
-            <p>Du har nu lämnat in dina tankar kring de politiska uppdragen 2026</p>
-        </div>
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Laddar faktarutor...</p>
     </div>
 
-    <script>
-        // Din optimerade Google Apps Script API URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbzyiWEx_vT0n5ydQdA3u5C35D-O69JNBLkYGEWfRu8gKGxEsHodujZjYY6EQ9Vxlk0S/exec';
-        
-        let sessionId = localStorage.getItem('sessionId');
-        if (!sessionId) {
-            sessionId = 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-            localStorage.setItem('sessionId', sessionId);
+    <div id="content"></div>
+
+    <div class="final-message" id="final-message">
+      <h2>Tack för dina svar.</h2>
+      <p>Du har nu lämnat in dina tankar kring de politiska uppdragen 2026.</p>
+    </div>
+  </div>
+
+  <script>
+    // ====== KONFIG ======
+    const API_URL = 'REPLACE_WITH_YOUR_DEPLOYED_APPS_SCRIPT_URL'; // t.ex. din befintliga webapp-URL
+    // ====================
+
+    // Enkel per-enhet "inloggning": sessions-ID i localStorage
+    let sessionId = localStorage.getItem('sessionId');
+    if (!sessionId) {
+      sessionId = 'user_' + Math.random().toString(36).slice(2, 9) + '_' + Date.now();
+      localStorage.setItem('sessionId', sessionId);
+    }
+
+    // Loka lagring av svar + response_id för att möjliggöra uppdatering/radering
+    let factBoxes = [];
+    let completedBoxes = new Set(JSON.parse(localStorage.getItem('completedBoxes') || '[]'));
+    // savedAnswers[boxId] = { q1_answer, q2_answer, q3_answer, response_id }
+    let savedAnswers = JSON.parse(localStorage.getItem('savedAnswers') || '{}');
+
+    // ====== Hjälpfunktion för JSONP ======
+    function jsonp(url){
+      return new Promise((resolve, reject) => {
+        const cb = 'jsonp_cb_' + Math.round(Math.random()*1e9);
+        const script = document.createElement('script');
+        const sep = url.includes('?') ? '&' : '?';
+        window[cb] = (data) => {
+          delete window[cb];
+          document.head.removeChild(script);
+          resolve(data);
+        };
+        script.onerror = () => {
+          delete window[cb];
+          document.head.removeChild(script);
+          reject(new Error('JSONP load error'));
+        };
+        script.src = `${url}${sep}callback=${cb}`;
+        document.head.appendChild(script);
+      });
+    }
+
+    // ====== Ladda faktarutor ======
+    async function loadFactBoxes(){
+      try{
+        document.getElementById('loading').style.display = 'block';
+        const data = await jsonp(`${API_URL}?action=get_fact_boxes`);
+        if(Array.isArray(data) && data.length){
+          factBoxes = data;
+          displayFactBoxes(factBoxes);
+          updateProgress();
+        }else if(data && data.error){
+          document.getElementById('content').innerHTML = `<div class="message error">Fel: ${data.error}</div>`;
+        }else{
+          document.getElementById('content').innerHTML = '<div class="message error">Kunde inte ladda faktarutor. Kontrollera Google Sheet.</div>';
         }
+      }catch(err){
+        console.error(err);
+        document.getElementById('content').innerHTML = '<div class="message error">Något gick fel vid laddning av faktarutor.</div>';
+      }finally{
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
 
-        let factBoxes = [];
-        let completedBoxes = new Set(JSON.parse(localStorage.getItem('completedBoxes') || '[]'));
-        let savedAnswers = JSON.parse(localStorage.getItem('savedAnswers') || '{}');
+    // ====== Rendera UI ======
+    function displayFactBoxes(items){
+      const content = document.getElementById('content');
+      content.innerHTML = '';
+      document.getElementById('progress-text').textContent = `${completedBoxes.size}/${items.length}`;
 
-        // Hämta faktarutor med JSONP
-        async function loadFactBoxes() {
-            try {
-                document.getElementById('loading').style.display = 'block';
-                
-                // Använd JSONP för att undvika CORS
-                const data = await new Promise((resolve, reject) => {
-                    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-                    window[callbackName] = function(data) {
-                        delete window[callbackName];
-                        document.head.removeChild(script);
-                        resolve(data);
-                    };
-                    
-                    const script = document.createElement('script');
-                    script.src = `${API_URL}?action=get_fact_boxes&callback=${callbackName}`;
-                    script.onerror = function() {
-                        delete window[callbackName];
-                        document.head.removeChild(script);
-                        reject(new Error('Script loading failed'));
-                    };
-                    document.head.appendChild(script);
-                });
-                
-                if (Array.isArray(data) && data.length > 0) {
-                    factBoxes = data;
-                    displayFactBoxes(factBoxes);
-                    updateProgress();
-                } else if (data.error) {
-                    document.getElementById('content').innerHTML = `<div class="error">Fel: ${data.error}</div>`;
-                } else {
-                    document.getElementById('content').innerHTML = '<div class="error">Kunde inte ladda faktarutor. Kontrollera att data finns i Google Sheet.</div>';
-                }
-            } catch (error) {
-                console.error('Fel:', error);
-                document.getElementById('content').innerHTML = '<div class="error">Något gick fel vid laddning av faktarutor.</div>';
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-            }
-        }
+      items.forEach((box, i) => {
+        const boxId = box.box_id;
+        const isCompleted = completedBoxes.has(String(boxId));
+        const saved = savedAnswers[String(boxId)] || {};
 
-        // Visa faktarutor
-        function displayFactBoxes(factBoxes) {
-            const content = document.getElementById('content');
-            content.innerHTML = '';
+        const root = document.createElement('div');
+        root.className = 'fact-box';
+        root.style.animationDelay = `${i*0.08}s`;
+        root.id = `fact-box-${boxId}`;
 
-            factBoxes.forEach((box, index) => {
-                const isCompleted = completedBoxes.has(box.box_id.toString());
-                const savedData = savedAnswers[box.box_id.toString()] || {};
-                
-                const factBoxDiv = document.createElement('div');
-                factBoxDiv.className = 'fact-box';
-                factBoxDiv.id = `fact-box-${box.box_id}`;
-                factBoxDiv.style.animationDelay = `${index * 0.1}s`;
-                
-                factBoxDiv.innerHTML = `
-                    <div class="fact-header">
-                        <div class="fact-number">Faktaruta ${box.box_id}</div>
-                        <div class="completion-status ${isCompleted ? 'completed' : ''}" id="status_${box.box_id}">
-                            ${isCompleted ? '✓' : ''}
-                        </div>
-                    </div>
-                    
-                    <h2>${box.title}</h2>
-                    <div class="fact-content">${box.content}</div>
-                    
-                    <div class="question required">
-                        <h4><span class="question-number">1</span>${box.q1_text} <span class="required-indicator">*</span></h4>
-                        <div class="options">
-                            ${box.q1_options.split(',').map(option => `
-                                <div class="option-item">
-                                    <input type="radio" name="q1_${box.box_id}" value="${option.trim()}" id="q1_${box.box_id}_${option.trim()}" ${savedData.q1_answer === option.trim() ? 'checked' : ''} ${isCompleted ? 'disabled' : ''}>
-                                    <label for="q1_${box.box_id}_${option.trim()}">${option.trim()}</label>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
+        const q2Opts = (box.q2_options || '').split(',').map(s=>s.trim()).filter(Boolean);
+        const q3Placeholder = box.q3_placeholder || 'Skriv ditt svar här...';
 
-                    <div class="question">
-                        <h4><span class="question-number">2</span>${box.q2_text} <span style="font-size: 0.9rem; color: #64748b;">(Valfritt - Välj ett eller flera alternativ)</span></h4>
-                        <div class="options">
-                            ${box.q2_options.split(',').map(option => {
-                                const isChecked = savedData.q2_answer && savedData.q2_answer.includes(option.trim());
-                                return `
-                                    <div class="option-item">
-                                        <input type="checkbox" name="q2_${box.box_id}" value="${option.trim()}" id="q2_${box.box_id}_${option.trim()}" ${isChecked ? 'checked' : ''} ${isCompleted ? 'disabled' : ''}>
-                                        <label for="q2_${box.box_id}_${option.trim()}">${option.trim()}</label>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
+        root.innerHTML = `
+          <div class="fact-header">
+            <div class="fact-number">Faktaruta ${boxId}</div>
+            <div class="completion-status ${isCompleted ? 'completed' : ''}" id="status_${boxId}">${isCompleted ? '✓' : ''}</div>
+          </div>
 
-                    <div class="question">
-                        <h4><span class="question-number">3</span>${box.q3_text} <span style="font-size: 0.9rem; color: #64748b;">(Valfritt)</span></h4>
-                        <textarea id="q3_${box.box_id}" placeholder="Skriv ditt svar här..." rows="4" ${isCompleted ? 'disabled' : ''}>${savedData.q3_answer || ''}</textarea>
-                    </div>
+          <h2>${box.title || ''}</h2>
+          <div class="fact-content">${box.content || ''}</div>
 
-                    <div class="button-group">
-                        <button class="submit-button" onclick="submitAnswers(${box.box_id})" style="${isCompleted ? 'display: none' : ''}">
-                            Skicka svar
-                        </button>
-                        <button class="edit-button" onclick="editAnswers(${box.box_id})" style="${isCompleted ? '' : 'display: none'}">
-                            Redigera svar
-                        </button>
-                        <button class="delete-button" onclick="deleteAnswers(${box.box_id})" style="${isCompleted ? '' : 'display: none'}">
-                            Ta bort svar
-                        </button>
-                    </div>
-                    <div id="message_${box.box_id}"></div>
+          <div class="question required">
+            <h4><span class="question-number">1</span>${box.q1_text} <span class="required-indicator">*</span></h4>
+            <div class="options">
+              ${(box.q1_options || '').split(',').map(opt=>{
+                const val = opt.trim(); if(!val) return '';
+                const checked = saved.q1_answer === val ? 'checked' : '';
+                const dis = isCompleted ? 'disabled' : '';
+                const id = `q1_${boxId}_${val.replace(/\s+/g,'_')}`;
+                return `
+                  <label class="option-item">
+                    <input type="radio" name="q1_${boxId}" id="${id}" value="${val}" ${checked} ${dis}>
+                    <span>${val}</span>
+                  </label>
                 `;
-                
-                content.appendChild(factBoxDiv);
-            });
+              }).join('')}
+            </div>
+            <div style="font-size:.9rem;color:#64748b;margin-top:.25rem">Obligatorisk fråga</div>
+          </div>
 
-            // Lägg till event listeners för option selection
-            document.querySelectorAll('.option-item input[type="radio"]').forEach(input => {
-                input.addEventListener('change', function() {
-                    // Ta bort selected class från alla options i samma grupp
-                    const groupName = this.name;
-                    document.querySelectorAll(`input[name="${groupName}"]`).forEach(radio => {
-                        radio.closest('.option-item').classList.remove('selected');
-                    });
-                    
-                    // Lägg till selected class på vald option
-                    this.closest('.option-item').classList.add('selected');
-                });
-            });
+          <div class="question">
+            <h4><span class="question-number">2</span>${box.q2_text} <span style="font-size:.9rem;color:#64748b">(Valfritt – välj flera)</span></h4>
+            <div class="options">
+              ${q2Opts.map(opt=>{
+                const val = opt;
+                const checked = (saved.q2_answer || '').split(',').map(s=>s.trim()).includes(val) ? 'checked' : '';
+                const dis = isCompleted ? 'disabled' : '';
+                const id = `q2_${boxId}_${val.replace(/\s+/g,'_')}`;
+                return `
+                  <label class="option-item">
+                    <input type="checkbox" name="q2_${boxId}" id="${id}" value="${val}" ${checked} ${dis}>
+                    <span>${val}</span>
+                  </label>
+                `;
+              }).join('')}
+            </div>
+          </div>
 
-            // Lägg till event listeners för checkbox selection
-            document.querySelectorAll('.option-item input[type="checkbox"]').forEach(input => {
-                input.addEventListener('change', function() {
-                    // Toggle selected class för checkboxes
-                    if (this.checked) {
-                        this.closest('.option-item').classList.add('selected');
-                    } else {
-                        this.closest('.option-item').classList.remove('selected');
-                    }
-                });
-            });
+          <div class="question">
+            <h4><span class="question-number">3</span>${box.q3_text} <span style="font-size:.9rem;color:#64748b">(Valfritt)</span></h4>
+            <textarea id="q3_${boxId}" placeholder="${q3Placeholder}" rows="4" ${isCompleted ? 'disabled' : ''}>${saved.q3_answer || ''}</textarea>
+          </div>
 
-            // Aktivera selected classes för redan valda alternativ
-            document.querySelectorAll('input:checked').forEach(input => {
-                input.closest('.option-item').classList.add('selected');
-            });
+          <div class="button-group">
+            <button class="submit-button" id="submit_${boxId}" onclick="submitAnswers(${boxId})" style="${isCompleted ? 'display:none' : ''}">
+              Skicka svar
+            </button>
+            <button class="edit-button" id="edit_${boxId}" onclick="editAnswers(${boxId})" style="${isCompleted ? '' : 'display:none'}">
+              Redigera svar
+            </button>
+            <button class="delete-button" id="delete_${boxId}" onclick="deleteAnswers(${boxId})" style="${isCompleted ? '' : 'display:none'}">
+              Ta bort svar
+            </button>
+          </div>
+          <div id="message_${boxId}"></div>
+        `;
+
+        content.appendChild(root);
+      });
+
+      // selected-stil
+      document.querySelectorAll('.option-item input[type="radio"]').forEach(inp=>{
+        if(inp.checked) inp.closest('.option-item').classList.add('selected');
+        inp.addEventListener('change', function(){
+          const name = this.name;
+          document.querySelectorAll(`input[name="${name}"]`).forEach(r => r.closest('.option-item')?.classList.remove('selected'));
+          this.closest('.option-item')?.classList.add('selected');
+        });
+      });
+      document.querySelectorAll('.option-item input[type="checkbox"]').forEach(inp=>{
+        if(inp.checked) inp.closest('.option-item').classList.add('selected');
+        inp.addEventListener('change', function(){
+          this.closest('.option-item')?.classList.toggle('selected', this.checked);
+        });
+      });
+    }
+
+    // ====== Skicka / Uppdatera svar ======
+    async function submitAnswers(boxId){
+      const q1 = document.querySelector(`input[name="q1_${boxId}"]:checked`)?.value || '';
+      const q2 = Array.from(document.querySelectorAll(`input[name="q2_${boxId}"]:checked`)).map(cb=>cb.value).join(', ');
+      const q3 = document.getElementById(`q3_${boxId}`).value || '';
+
+      if(!q1){
+        document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">⚠️ Vänligen svara på fråga 1 (obligatorisk).</div>';
+        return;
+      }
+
+      const btn = document.getElementById(`submit_${boxId}`);
+      const isUpdate = Boolean(savedAnswers[String(boxId)]?.response_id);
+      btn.disabled = true;
+      btn.textContent = isUpdate ? 'Uppdaterar...' : 'Skickar...';
+
+      try{
+        const payload = {
+          action: isUpdate ? 'update_response' : 'save_response',
+          timestamp: new Date().toISOString(),
+          session_id: sessionId,
+          box_id: boxId,
+          q1_answer: q1,
+          q2_answer: q2,
+          q3_answer: q3
+        };
+
+        // Om vi redan har response_id (rad-id) – skicka med det för en exakt uppdatering
+        if(isUpdate){
+          payload.response_id = savedAnswers[String(boxId)].response_id;
         }
 
-        // Skicka svar med JSONP
-        async function submitAnswers(boxId) {
-            const q1Answer = document.querySelector(`input[name="q1_${boxId}"]:checked`)?.value || '';
-            
-            // Hämta alla valda checkboxes för fråga 2
-            const q2Checkboxes = document.querySelectorAll(`input[name="q2_${boxId}"]:checked`);
-            const q2Answers = Array.from(q2Checkboxes).map(cb => cb.value);
-            const q2Answer = q2Answers.join(', '); // Kombinera flera svar med komma
-            
-            const q3Answer = document.getElementById(`q3_${boxId}`).value || '';
+        const url = `${API_URL}?` + new URLSearchParams(payload).toString();
+        const res = await jsonp(url);
 
-            // Endast första frågan är obligatorisk
-            if (!q1Answer) {
-                document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">⚠️ Vänligen svara på den första frågan (obligatorisk)</div>';
-                return;
-            }
+        if(res && res.success){
+          // Spara lokalt inkl response_id från servern
+          const responseId = res.response_id || savedAnswers[String(boxId)]?.response_id || null;
+          savedAnswers[String(boxId)] = { q1_answer: q1, q2_answer: q2, q3_answer: q3, response_id: responseId };
+          localStorage.setItem('savedAnswers', JSON.stringify(savedAnswers));
 
-            const submitButton = document.querySelector(`#fact-box-${boxId} .submit-button`);
-            submitButton.disabled = true;
-            submitButton.innerHTML = 'Skickar...';
+          completedBoxes.add(String(boxId));
+          localStorage.setItem('completedBoxes', JSON.stringify(Array.from(completedBoxes)));
 
-            try {
-                const payload = {
-                    timestamp: new Date().toISOString(),
-                    session_id: sessionId,
-                    box_id: boxId,
-                    q1_answer: q1Answer,
-                    q2_answer: q2Answer,
-                    q3_answer: q3Answer
-                };
+          // Lås inputs
+          const factBox = document.getElementById(`fact-box-${boxId}`);
+          factBox.querySelectorAll('input, textarea').forEach(el=> el.disabled = true);
+          factBox.classList.remove('edit-mode');
 
-                console.log('Skickar data:', payload);
+          // UI-uppdateringar
+          document.getElementById(`status_${boxId}`).classList.add('completed');
+          document.getElementById(`status_${boxId}`).textContent = '✓';
+          document.getElementById(`message_${boxId}`).innerHTML = `<div class="message success">✅ ${isUpdate ? 'Svar uppdaterat!' : 'Svar sparat!'}</div>`;
 
-                // Använd JSONP för POST-request (genom att koda data som GET-parametrar)
-                const params = new URLSearchParams({
-                    action: 'save_response',
-                    ...payload
-                }).toString();
-                
-                const result = await new Promise((resolve, reject) => {
-                    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-                    window[callbackName] = function(data) {
-                        delete window[callbackName];
-                        document.head.removeChild(script);
-                        resolve(data);
-                    };
-                    
-                    const script = document.createElement('script');
-                    script.src = `${API_URL}?callback=${callbackName}&${params}`;
-                    script.onerror = function() {
-                        delete window[callbackName];
-                        document.head.removeChild(script);
-                        reject(new Error('Script loading failed'));
-                    };
-                    document.head.appendChild(script);
-                });
+          document.getElementById(`submit_${boxId}`).style.display = 'none';
+          document.getElementById(`edit_${boxId}`).style.display = 'inline-block';
+          document.getElementById(`delete_${boxId}`).style.display = 'inline-block';
 
-                console.log('Response data:', result);
-                
-                if (result.success) {
-                    document.getElementById(`message_${boxId}`).innerHTML = '<div class="message success">✅ Svar sparat!</div>';
-                    
-                    // Spara svaren lokalt
-                    savedAnswers[boxId.toString()] = {
-                        q1_answer: q1Answer,
-                        q2_answer: q2Answer,
-                        q3_answer: q3Answer
-                    };
-                    localStorage.setItem('savedAnswers', JSON.stringify(savedAnswers));
-                    
-                    // Uppdatera completion status
-                    completedBoxes.add(boxId.toString());
-                    localStorage.setItem('completedBoxes', JSON.stringify([...completedBoxes]));
-                    
-                    const statusElement = document.getElementById(`status_${boxId}`);
-                    statusElement.classList.add('completed');
-                    statusElement.innerHTML = '✓';
-                    
-                    // Ta bort redigeringsläge
-                    const factBox = document.getElementById(`fact-box-${boxId}`);
-                    factBox.classList.remove('edit-mode');
-                    
-                    // Växla knappar
-                    submitButton.style.display = 'none';
-                    submitButton.innerHTML = 'Skicka svar';
-                    document.querySelector(`#fact-box-${boxId} .edit-button`).style.display = 'inline-block';
-                    document.querySelector(`#fact-box-${boxId} .delete-button`).style.display = 'inline-block';
-                    
-                    // Inaktivera alla inputs i denna faktaruta
-                    const inputs = factBox.querySelectorAll('input, textarea');
-                    inputs.forEach(input => input.disabled = true);
-                    
-                    updateProgress();
-                    
-                    // Kolla om alla faktarutor är klara
-                    if (completedBoxes.size === factBoxes.length) {
-                        setTimeout(() => {
-                            document.getElementById('final-message').style.display = 'block';
-                            document.getElementById('final-message').scrollIntoView({ behavior: 'smooth' });
-                        }, 1000);
-                    }
-                } else {
-                    document.getElementById(`message_${boxId}`).innerHTML = `<div class="message error">❌ Fel: ${result.error || 'Kunde inte spara svar'}</div>`;
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = 'Skicka svar';
-                }
-            } catch (error) {
-                console.error('Fel vid sparande:', error);
-                document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Något gick fel. Kontrollera internetanslutningen och försök igen.</div>';
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Skicka svar';
-            }
+          updateProgress();
+
+          if(completedBoxes.size === factBoxes.length){
+            setTimeout(()=>{
+              document.getElementById('final-message').style.display = 'block';
+              document.getElementById('final-message').scrollIntoView({behavior:'smooth'});
+            }, 600);
+          }
+        }else{
+          throw new Error(res?.error || 'Kunde inte spara svar');
         }
+      }catch(err){
+        console.error(err);
+        document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Ett fel uppstod. Försök igen.</div>';
+      }finally{
+        btn.disabled = false;
+        btn.textContent = isUpdate ? 'Uppdatera svar' : 'Skicka svar';
+      }
+    }
 
-        // Redigera svar
-        function editAnswers(boxId) {
-            const factBox = document.getElementById(`fact-box-${boxId}`);
-            
-            // Aktivera alla inputs
-            const inputs = factBox.querySelectorAll('input, textarea');
-            inputs.forEach(input => input.disabled = false);
-            
-            // Lägg till redigeringsläge visuellt
-            factBox.classList.add('edit-mode');
-            
-            // Växla knappar
-            document.querySelector(`#fact-box-${boxId} .submit-button`).style.display = 'inline-block';
-            document.querySelector(`#fact-box-${boxId} .submit-button`).innerHTML = 'Uppdatera svar';
-            document.querySelector(`#fact-box-${boxId} .edit-button`).style.display = 'none';
-            document.querySelector(`#fact-box-${boxId} .delete-button`).style.display = 'none';
-            
-            // Visa meddelande
-            document.getElementById(`message_${boxId}`).innerHTML = '<div class="message">🔧 Redigeringsläge aktiverat. Gör dina ändringar och klicka på "Uppdatera svar".</div>';
+    // ====== Redigera ======
+    function editAnswers(boxId){
+      const factBox = document.getElementById(`fact-box-${boxId}`);
+      factBox.querySelectorAll('input, textarea').forEach(el=> el.disabled = false);
+      factBox.classList.add('edit-mode');
+      // Visa uppdatera-knapp, göm redigera/ta bort
+      const submit = document.getElementById(`submit_${boxId}`);
+      submit.style.display = 'inline-block';
+      submit.textContent = 'Uppdatera svar';
+      document.getElementById(`edit_${boxId}`).style.display = 'none';
+      document.getElementById(`delete_${boxId}`).style.display = 'none';
+      document.getElementById(`message_${boxId}`).innerHTML = '<div class="message">🔧 Redigeringsläge aktiverat. Gör dina ändringar och klicka på "Uppdatera svar".</div>';
+    }
+
+    // ====== Ta bort ======
+    async function deleteAnswers(boxId){
+      if(!confirm('Är du säker på att du vill ta bort ditt svar för denna faktaruta?')) return;
+
+      const delBtn = document.getElementById(`delete_${boxId}`);
+      delBtn.disabled = true;
+      delBtn.textContent = 'Tar bort...';
+
+      try{
+        const responseId = savedAnswers[String(boxId)]?.response_id || null;
+
+        const payload = {
+          action: 'delete_response',
+          session_id: sessionId,
+          box_id: boxId
+        };
+        if(responseId) payload.response_id = responseId;
+
+        const url = `${API_URL}?` + new URLSearchParams(payload).toString();
+        const res = await jsonp(url);
+
+        if(res && res.success){
+          // Rensa lokalt
+          completedBoxes.delete(String(boxId));
+          delete savedAnswers[String(boxId)];
+          localStorage.setItem('completedBoxes', JSON.stringify(Array.from(completedBoxes)));
+          localStorage.setItem('savedAnswers', JSON.stringify(savedAnswers));
+
+          const factBox = document.getElementById(`fact-box-${boxId}`);
+          factBox.classList.remove('edit-mode');
+          // Återställ inputs
+          factBox.querySelectorAll('input, textarea').forEach(el=>{
+            if(el.type==='radio' || el.type==='checkbox'){ el.checked = false; el.disabled = false; el.closest('.option-item')?.classList.remove('selected'); }
+            else { el.value = ''; el.disabled = false; }
+          });
+
+          document.getElementById(`status_${boxId}`).classList.remove('completed');
+          document.getElementById(`status_${boxId}`).textContent = '';
+          document.getElementById(`submit_${boxId}`).style.display = 'inline-block';
+          document.getElementById(`submit_${boxId}`).textContent = 'Skicka svar';
+          document.getElementById(`edit_${boxId}`).style.display = 'none';
+          document.getElementById(`delete_${boxId}`).style.display = 'none';
+          document.getElementById(`message_${boxId}`).innerHTML = '<div class="message success">✅ Svar borttaget!</div>';
+
+          updateProgress();
+        }else{
+          throw new Error(res?.error || 'Kunde inte ta bort svar');
         }
+      }catch(err){
+        console.error(err);
+        document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Något gick fel vid borttagning.</div>';
+      }finally{
+        delBtn.disabled = false;
+        delBtn.textContent = 'Ta bort svar';
+      }
+    }
 
-        // Ta bort svar
-        async function deleteAnswers(boxId) {
-            if (!confirm('Är du säker på att du vill ta bort ditt svar för denna faktaruta?')) {
-                return;
-            }
+    // ====== Progress ======
+    function updateProgress(){
+      const completed = completedBoxes.size;
+      const total = factBoxes.length;
+      const pct = total ? (completed/total)*100 : 0;
+      document.getElementById('progress-text').textContent = `${completed}/${total}`;
+      document.getElementById('progress-fill').style.width = `${pct}%`;
+    }
 
-            const deleteButton = document.querySelector(`#fact-box-${boxId} .delete-button`);
-            deleteButton.disabled = true;
-            deleteButton.innerHTML = 'Tar bort...';
-
-            try {
-                // Skicka borttagningsförfrågan
-                const params = new URLSearchParams({
-                    action: 'delete_response',
-                    session_id: sessionId,
-                    box_id: boxId
-                }).toString();
-                
-                const result = await new Promise((resolve, reject) => {
-                    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-                    window[callbackName] = function(data) {
-                        delete window[callbackName];
-                        document.head.removeChild(script);
-                        resolve(data);
-                    };
-                    
-                    const script = document.createElement('script');
-                    script.src = `${API_URL}?callback=${callbackName}&${params}`;
-                    script.onerror = function() {
-                        delete window[callbackName];
-                        document.head.removeChild(script);
-                        reject(new Error('Script loading failed'));
-                    };
-                    document.head.appendChild(script);
-                });
-
-                if (result.success) {
-                    // Ta bort från lokala variabler
-                    completedBoxes.delete(boxId.toString());
-                    delete savedAnswers[boxId.toString()];
-                    localStorage.setItem('completedBoxes', JSON.stringify([...completedBoxes]));
-                    localStorage.setItem('savedAnswers', JSON.stringify(savedAnswers));
-                    
-                    // Återställ formuläret
-                    const factBox = document.getElementById(`fact-box-${boxId}`);
-                    factBox.classList.remove('edit-mode');
-                    
-                    // Rensa alla inputs
-                    const inputs = factBox.querySelectorAll('input, textarea');
-                    inputs.forEach(input => {
-                        if (input.type === 'radio' || input.type === 'checkbox') {
-                            input.checked = false;
-                            input.disabled = false;
-                        } else {
-                            input.value = '';
-                            input.disabled = false;
-                        }
-                        input.closest('.option-item')?.classList.remove('selected');
-                    });
-                    
-                    // Uppdatera status
-                    const statusElement = document.getElementById(`status_${boxId}`);
-                    statusElement.classList.remove('completed');
-                    statusElement.innerHTML = '';
-                    
-                    // Växla knappar
-                    document.querySelector(`#fact-box-${boxId} .submit-button`).style.display = 'inline-block';
-                    document.querySelector(`#fact-box-${boxId} .submit-button`).innerHTML = 'Skicka svar';
-                    document.querySelector(`#fact-box-${boxId} .edit-button`).style.display = 'none';
-                    document.querySelector(`#fact-box-${boxId} .delete-button`).style.display = 'none';
-                    
-                    document.getElementById(`message_${boxId}`).innerHTML = '<div class="message success">✅ Svar borttaget!</div>';
-                    updateProgress();
-                } else {
-                    document.getElementById(`message_${boxId}`).innerHTML = `<div class="message error">❌ Fel: ${result.error || 'Kunde inte ta bort svar'}</div>`;
-                }
-            } catch (error) {
-                console.error('Fel vid borttagning:', error);
-                document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Något gick fel vid borttagning.</div>';
-            } finally {
-                deleteButton.disabled = false;
-                deleteButton.innerHTML = 'Ta bort svar';
-            }
-        }
-
-            try {
-                const payload = {
-                    timestamp: new Date().toISOString(),
-                    session_id: sessionId,
-                    box_id: boxId,
-                    q1_answer: q1Answer,
-                    q2_answer: q2Answer,
-                    q3_answer: q3Answer
-                };
-
-                console.log('Skickar data:', payload);
-
-                // Använd JSONP för POST-request (genom att koda data som GET-parametrar)
-                const params = new URLSearchParams({
-                    action: 'save_response',
-                    ...payload
-                }).toString();
-                
-                const result = await new Promise((resolve, reject) => {
-                    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-                    window[callbackName] = function(data) {
-                        delete window[callbackName];
-                        document.head.removeChild(script);
-                        resolve(data);
-                    };
-                    
-                    const script = document.createElement('script');
-                    script.src = `${API_URL}?callback=${callbackName}&${params}`;
-                    script.onerror = function() {
-                        delete window[callbackName];
-                        document.head.removeChild(script);
-                        reject(new Error('Script loading failed'));
-                    };
-                    document.head.appendChild(script);
-                });
-
-                if (result.success) {
-                    // Ta bort från lokala variabler
-                    completedBoxes.delete(boxId.toString());
-                    delete savedAnswers[boxId.toString()];
-                    localStorage.setItem('completedBoxes', JSON.stringify([...completedBoxes]));
-                    localStorage.setItem('savedAnswers', JSON.stringify(savedAnswers));
-                    
-                    // Återställ formuläret
-                    const factBox = document.getElementById(`fact-box-${boxId}`);
-                    factBox.classList.remove('edit-mode');
-                    
-                    // Rensa alla inputs
-                    const inputs = factBox.querySelectorAll('input, textarea');
-                    inputs.forEach(input => {
-                        if (input.type === 'radio' || input.type === 'checkbox') {
-                            input.checked = false;
-                            input.disabled = false;
-                        } else {
-                            input.value = '';
-                            input.disabled = false;
-                        }
-                        input.closest('.option-item')?.classList.remove('selected');
-                    });
-                    
-                    // Uppdatera status
-                    const statusElement = document.getElementById(`status_${boxId}`);
-                    statusElement.classList.remove('completed');
-                    statusElement.innerHTML = '';
-                    
-                    // Växla knappar
-                    document.querySelector(`#fact-box-${boxId} .submit-button`).style.display = 'inline-block';
-                    document.querySelector(`#fact-box-${boxId} .submit-button`).innerHTML = 'Skicka svar';
-                    document.querySelector(`#fact-box-${boxId} .edit-button`).style.display = 'none';
-                    document.querySelector(`#fact-box-${boxId} .delete-button`).style.display = 'none';
-                    
-                    document.getElementById(`message_${boxId}`).innerHTML = '<div class="message success">✅ Svar borttaget!</div>';
-                    updateProgress();
-                } else {
-                    document.getElementById(`message_${boxId}`).innerHTML = `<div class="message error">❌ Fel: ${result.error || 'Kunde inte ta bort svar'}</div>`;
-                }
-            } catch (error) {
-                console.error('Fel vid borttagning:', error);
-                document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Något gick fel vid borttagning.</div>';
-            } finally {
-                deleteButton.disabled = false;
-                deleteButton.innerHTML = 'Ta bort svar';
-            }
-        }
-
-        // Uppdatera progress
-        function updateProgress() {
-            const completed = completedBoxes.size;
-            const total = factBoxes.length;
-            const percentage = total > 0 ? (completed / total) * 100 : 0;
-            
-            document.getElementById('progress-text').textContent = `${completed}/${total}`;
-            document.getElementById('progress-fill').style.width = `${percentage}%`;
-        }
-
-        // Ladda faktarutor när sidan laddas
-        loadFactBoxes();
-    </script>
+    // Start
+    loadFactBoxes();
+  </script>
 </body>
 </html>
-                        resolve(data);
-                    };
-                    
-                    const script = document.createElement('script');
-                    script.src = `${API_URL}?callback=${callbackName}&${params}`;
-                    script.onerror = function() {
-                        delete window[callbackName];
-                        document.head.removeChild(script);
-                        reject(new Error('Script loading failed'));
-                    };
-                    document.head.appendChild(script);
-                });
-
-                console.log('Response data:', result);
-                
-                if (result.success) {
-                    document.getElementById(`message_${boxId}`).innerHTML = '<div class="message success">✅ Svar sparat!</div>';
-                    
-                    // Spara svaren lokalt
-                    savedAnswers[boxId.toString()] = {
-                        q1_answer: q1Answer,
-                        q2_answer: q2Answer,
-                        q3_answer: q3Answer
-                    };
-                    localStorage.setItem('savedAnswers', JSON.stringify(savedAnswers));
-                    
-                    // Uppdatera completion status
-                    completedBoxes.add(boxId.toString());
-                    localStorage.setItem('completedBoxes', JSON.stringify([...completedBoxes]));
-                    
-                    const statusElement = document.getElementById(`status_${boxId}`);
-                    statusElement.classList.add('completed');
-                    statusElement.innerHTML = '✓';
-                    
-                    // Växla knappar
-                    submitButton.style.display = 'none';
-                    document.querySelector(`#fact-box-${boxId} .edit-button`).style.display = 'inline-block';
-                    document.querySelector(`#fact-box-${boxId} .delete-button`).style.display = 'inline-block';
-                    
-                    // Inaktivera alla inputs i denna faktaruta
-                    const factBox = document.getElementById(`fact-box-${boxId}`);
-                    const inputs = factBox.querySelectorAll('input, textarea');
-                    inputs.forEach(input => input.disabled = true);
-                    
-                    updateProgress();
-                    
-                    // Kolla om alla faktarutor är klara
-                    if (completedBoxes.size === factBoxes.length) {
-                        setTimeout(() => {
-                            document.getElementById('final-message').style.display = 'block';
-                            document.getElementById('final-message').scrollIntoView({ behavior: 'smooth' });
-                        }, 1000);
-                    }
-                } else {
-                    document.getElementById(`message_${boxId}`).innerHTML = `<div class="message error">❌ Fel: ${result.error || 'Kunde inte spara svar'}</div>`;
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = 'Skicka svar';
-                }
-            } catch (error) {
-                console.error('Fel vid sparande:', error);
-                document.getElementById(`message_${boxId}`).innerHTML = '<div class="message error">❌ Något gick fel. Kontrollera internetanslutningen och försök igen.</div>';
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Skicka svar';
-            }
-        }
-
-        // Redigera svar
-        function editAnswers(boxId) {
-            const factBox = document.getElementById(`fact-box-${boxId}`);
-            
-            // Aktivera alla inputs
-            const inputs = factBox.querySelectorAll('input, textarea');
-            inputs.forEach(input => input.disabled = false);
-            
-            // Lägg till redigeringsläge visuellt
-            factBox.classList.add('edit-mode');
-            
-            // Växla knappar
-            document.querySelector(`#fact-box-${boxId} .submit-button`).style.display = 'inline-block';
-            document.querySelector(`#fact-box-${boxId} .submit-button`).innerHTML = 'Uppdatera svar';
-            document.querySelector(`#fact-box-${boxId} .edit-button`).style.display = 'none';
-            document.querySelector(`#fact-box-${boxId} .delete-button`).style.display = 'none';
-            
-            // Visa meddelande
-            document.getElementById(`message_${boxId}`).innerHTML = '<div class="message">🔧 Redigeringsläge aktiverat. Gör dina ändringar och klicka på "Uppdatera svar".</div>';
-        }
-
-        // Ta bort svar
-        async function deleteAnswers(boxId) {
-            if (!confirm('Är du säker på att du vill ta bort ditt svar för denna faktaruta?')) {
-                return;
-            }
-
-            const deleteButton = document.querySelector(`#fact-box-${boxId} .delete-button`);
-            deleteButton.disabled = true;
-            deleteButton.innerHTML = 'Tar bort...';
-
-            try {
-                // Skicka borttagningsförfrågan (du kan behöva implementera detta i ditt API)
-                const params = new URLSearchParams({
-                    action: 'delete_response',
-                    session_id: sessionId,
-                    box_id: boxId
-                }).toString();
-                
-                const result = await new Promise((resolve, reject) => {
-                    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-                    window[callbackName] = function(data) {
-                        delete window[callbackName];
-                        document.head.removeChild(script);
