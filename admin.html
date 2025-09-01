@@ -739,21 +739,53 @@
             });
         }
 
-        // Ladda alla svar
-        async function loadAllResponses() {
-            allResponses = [];
-            
-            for (const uppdrag of allUppdrag) {
-                try {
-                    const responses = await loadResponsesForUppdrag(uppdrag.box_id);
-                    allResponses = allResponses.concat(responses);
-                } catch (error) {
-                    console.error(`Fel vid laddning av svar för uppdrag ${uppdrag.box_id}:`, error);
+        // Ladda alla svar - OPTIMERAD VERSION
+async function loadAllResponses() {
+    try {
+        // Ladda ALLA svar på en gång istället för per uppdrag
+        const allResponsesData = await new Promise((resolve, reject) => {
+            const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+            window[callbackName] = function(data) {
+                delete window[callbackName];
+                document.head.removeChild(script);
+                
+                if (Array.isArray(data)) {
+                    const responses = data.map(row => ({
+                        timestamp: row[0],
+                        session_id: row[1],
+                        box_id: row[2],
+                        huvudansvar: row[3],
+                        stöd: row[4],
+                        kommentar: row[5]
+                    })).filter(response => response.timestamp && response.session_id);
+                    
+                    resolve(responses);
+                } else {
+                    resolve([]);
                 }
-            }
+            };
             
-            filteredResponses = [...allResponses];
-        }
+            const script = document.createElement('script');
+            script.src = `${API_URL}?action=get_all_responses&callback=${callbackName}`;
+            script.onerror = () => {
+                delete window[callbackName];
+                document.head.removeChild(script);
+                resolve([]);
+            };
+            document.head.appendChild(script);
+        });
+        
+        allResponses = allResponsesData;
+        filteredResponses = [...allResponses];
+        
+        console.log(`Optimerat: Laddade ${allResponses.length} svar i ett enda anrop`);
+        
+    } catch (error) {
+        console.error('Fel vid laddning av alla svar:', error);
+        allResponses = [];
+        filteredResponses = [];
+    }
+}
 
         // Ladda svar för specifikt uppdrag
         function loadResponsesForUppdrag(boxId) {
