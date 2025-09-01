@@ -1024,6 +1024,8 @@
             createResponsibilityMatrix();
             generateInsights();
             createUppdragTabs();
+            createParticipationChart();
+            createConsensusOverviewChart();
             
             if (filteredResponses.length > 0) {
                 loadUppdragData(currentUppdragId);
@@ -1528,17 +1530,10 @@
         }
 
         function showNoDataMessage() {
-            const containers = ['main-responsibility-chart', 'support-chart', 'text-responses'];
-            containers.forEach(id => {
-                const container = document.getElementById(id);
-                if (container) {
-                    if (id === 'text-responses') {
-                        container.innerHTML = '<div class="response-item">Inga svar för detta uppdrag.</div>';
-                    } else {
-                        container.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #64748b;">Inga data att visa</div>';
-                    }
-                }
-            });
+            const container = document.getElementById('text-responses');
+            if (container) {
+                container.innerHTML = '<div class="response-item">Inga svar för detta uppdrag.</div>';
+            }
         }
 
         // Starta applikationen - ladda data en gång
