@@ -1012,26 +1012,19 @@
             await loadUppdragData(uppdragId);
         }
 
-        // Ladda data för specifikt uppdrag
-        async function loadUppdragData(uppdragId) {
-            const uppdrag = allUppdrag.find(u => u.box_id == uppdragId);
-            const responses = filteredResponses.filter(r => r.box_id == uppdragId);
+     // Ladda data för specifikt uppdrag
+async function loadUppdragData(uppdragId) {
+    const uppdrag = allUppdrag.find(u => u.box_id == uppdragId);
+    const responses = filteredResponses.filter(r => r.box_id == uppdragId);
 
-            if (!uppdrag || responses.length === 0) {
-                showNoDataMessage();
-                return;
-            }
+    if (!uppdrag || responses.length === 0) {
+        document.getElementById('text-responses').innerHTML = '<div class="response-item">Inga svar för detta uppdrag.</div>';
+        return;
+    }
 
-            // Uppdatera rubriker
-            updateCardTitles(uppdrag);
-
-            // Skapa diagram
-            createMainResponsibilityChart(responses);
-            createSupportChart(responses);
-            
-            // Visa kommentarer
-            displayComments(responses);
-        }
+    // Visa kommentarer
+    displayComments(responses);
+}
 
         // Uppdatera kortrubriker
         function updateCardTitles(uppdrag) {
