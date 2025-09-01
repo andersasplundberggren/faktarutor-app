@@ -548,45 +548,7 @@
         </div>
     </div>
 
-    <div class="container">
-        <!-- Smarta filter -->
-        <div class="filter-panel">
-            <h3>🔍 Smarta filtreringar</h3>
-            <div class="filter-grid">
-                <div class="filter-group">
-                    <label class="filter-label">Filtrera efter huvudansvarig förvaltning:</label>
-                    <select class="filter-select" id="main-responsibility-filter" onchange="applyFilters()">
-                        <option value="">Alla förvaltningar</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label class="filter-label">Filtrera efter stödförvaltningar:</label>
-                    <div class="filter-checkbox-group" id="support-filter-checkboxes">
-                        <!-- Genereras dynamiskt -->
-                    </div>
-                </div>
-                
-                <div class="filter-group">
-                    <label class="filter-label">Konsensusgrad:</label>
-                    <select class="filter-select" id="consensus-filter" onchange="applyFilters()">
-                        <option value="">Alla nivåer</option>
-                        <option value="high">Hög konsensus (80%+)</option>
-                        <option value="medium">Medel konsensus (50-79%)</option>
-                        <option value="low">Låg konsensus (<50%)</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label class="filter-label">Kommentarer:</label>
-                    <select class="filter-select" id="comment-filter" onchange="applyFilters()">
-                        <option value="">Alla uppdrag</option>
-                        <option value="with-comments">Endast med kommentarer</option>
-                        <option value="without-comments">Endast utan kommentarer</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+  
 
         <!-- Övergripande statistik -->
         <div class="stats-overview">
@@ -674,6 +636,47 @@
         </div>
     </div>
 
+
+      <div class="container">
+        <!-- Smarta filter -->
+        <div class="filter-panel">
+            <h3>🔍 Smarta filtreringar</h3>
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Filtrera efter huvudansvarig förvaltning:</label>
+                    <select class="filter-select" id="main-responsibility-filter" onchange="applyFilters()">
+                        <option value="">Alla förvaltningar</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Filtrera efter stödförvaltningar:</label>
+                    <div class="filter-checkbox-group" id="support-filter-checkboxes">
+                        <!-- Genereras dynamiskt -->
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Konsensusgrad:</label>
+                    <select class="filter-select" id="consensus-filter" onchange="applyFilters()">
+                        <option value="">Alla nivåer</option>
+                        <option value="high">Hög konsensus (80%+)</option>
+                        <option value="medium">Medel konsensus (50-79%)</option>
+                        <option value="low">Låg konsensus (<50%)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Kommentarer:</label>
+                    <select class="filter-select" id="comment-filter" onchange="applyFilters()">
+                        <option value="">Alla uppdrag</option>
+                        <option value="with-comments">Endast med kommentarer</option>
+                        <option value="without-comments">Endast utan kommentarer</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+          
     <script>
         // API konfiguration - SAMMA som huvudsidan
         const API_URL = 'https://script.google.com/macros/s/AKfycbzyiWEx_vT0n5ydQdA3u5C35D-O69JNBLkYGEWfRu8gKGxEsHodujZjYY6EQ9Vxlk0S/exec';
