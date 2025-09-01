@@ -94,6 +94,7 @@
       </div>
       <div class="quick-actions">
         <span class="chip" id="jump-next">Nästa ej besvarade ↦</span>
+        <span class="chip" id="toggle-all">Expandera alla</span>
       </div>
     </div>
 
@@ -134,9 +135,7 @@
     // Förifyll lokalt från servern för aktuell session (om stöds i Apps Script)
     async function hydrateSavedFromServer(){
       try{
-        // 1) försök minimal endpoint
         let data = await jsonp(`${API_URL}?action=get_session_responses&session_id=${encodeURIComponent(sessionId)}`);
-        // 2) fallback till alla svar (filtrera på klienten)
         if(!Array.isArray(data)) {
           const all = await jsonp(`${API_URL}?action=get_all_responses`);
           if(Array.isArray(all)) data = all.filter(r => r[1] === sessionId);
@@ -144,12 +143,10 @@
         if(!Array.isArray(data)) return;
 
         data.forEach(row => {
-          // förväntad struktur: [timestamp, session_id, box_id, q1, q2, q3, ...]
           const boxId = String(row[2]);
           const q1 = row[3] || '';
           const q2 = row[4] || '';
           const q3 = row[5] || '';
-          // response_id kan ligga på olika index beroende på scriptversion – försök hitta
           const rid = (row.response_id) || row[7] || (typeof row[6] === 'string' && row[6].startsWith('rid_') ? row[6] : null);
 
           savedAnswers[boxId] = { q1_answer:q1, q2_answer:q2, q3_answer:q3, response_id: rid || savedAnswers[boxId]?.response_id || null };
@@ -245,7 +242,6 @@
 
           <div class="btns">
             <button class="btn primary" id="btn_submit_${boxId}" onclick="submitAnswers(${boxId})" style="${done?'display:none':''}">Spara</button>
-            <button class="btn secondary" id="btn_edit_${boxId}" onclick="editAnswers(${boxId})" style="${done?'':'display:none'}">Redigera</button>
             <button class="btn ghost" onclick="saveAndNext(${boxId})">Spara & nästa ↦</button>
           </div>
           <div class="msg" id="msg_${boxId}" style="display:none"></div>
@@ -272,21 +268,30 @@
         });
       });
 
-      // Expandera-funktion
-      document.getElementById('toggle-all').onclick = () => {
-        const all = Array.from(document.querySelectorAll('details.fact'));
-        const anyClosed = all.some(d => !d.open);
-        all.forEach(d => d.open = anyClosed);
-      };
+      // Expandera-funktion (med null-guards)
+      const toggleAllEl = document.getElementById('toggle-all');
+      if (toggleAllEl) {
+        toggleAllEl.onclick = () => {
+          const all = Array.from(document.querySelectorAll('details.fact'));
+          const anyClosed = all.some(d => !d.open);
+          all.forEach(d => d.open = anyClosed);
+        };
+      }
 
-      document.getElementById('jump-next').onclick = () => jumpToNextIncomplete();
+      const jumpNextEl = document.getElementById('jump-next');
+      if (jumpNextEl) {
+        jumpNextEl.onclick = () => jumpToNextIncomplete();
+      }
 
-      document.getElementById('global-next').onclick = () => {
-        const open = document.querySelector('details.fact[open]');
-        if (!open) return jumpToNextIncomplete();
-        const boxId = Number(open.id.replace('fact-',''));
-        saveAndNext(boxId);
-      };
+      const globalNextEl = document.getElementById('global-next');
+      if (globalNextEl) {
+        globalNextEl.onclick = () => {
+          const open = document.querySelector('details.fact[open]');
+          if (!open) return jumpToNextIncomplete();
+          const boxId = Number(open.id.replace('fact-',''));
+          saveAndNext(boxId);
+        };
+      }
 
       // endast en åt gången (accordion)
       document.querySelectorAll('details.fact').forEach(d=>{
@@ -318,7 +323,7 @@
 
       try{
         const payload = {
-          action: isUpdate ? 'update_response' : 'save_response', // 'save_response' bör uppserta på (session_id, box_id)
+          action: isUpdate ? 'update_response' : 'save_response',
           timestamp: new Date().toISOString(),
           session_id: sessionId,
           box_id: boxId,
@@ -335,17 +340,14 @@
           completedBoxes.add(String(boxId));
           localStorage.setItem('completedBoxes', JSON.stringify(Array.from(completedBoxes)));
 
-          // lås inputs
           const fact = document.getElementById(`fact-${boxId}`);
           fact.querySelectorAll('input, textarea').forEach(el=> el.disabled = true);
 
-          // knappar
           const submitBtn = document.getElementById(`btn_submit_${boxId}`);
           const editBtn = document.getElementById(`btn_edit_${boxId}`);
           if(submitBtn) submitBtn.style.display = 'none';
           if(editBtn)   editBtn.style.display   = 'inline-block';
 
-          // status
           const st = document.getElementById(`st_${boxId}`);
           st.classList.add('ok'); st.textContent = '✓';
 
@@ -370,7 +372,6 @@
       const fact = document.getElementById(`fact-${boxId}`);
       fact.open = true;
       fact.querySelectorAll('input, textarea').forEach(el=> el.disabled = false);
-      // visa Spara-knapp igen, göm Redigera
       const submitBtn = document.getElementById(`btn_submit_${boxId}`);
       const editBtn = document.getElementById(`btn_edit_${boxId}`);
       if(submitBtn){ submitBtn.style.display='inline-block'; submitBtn.textContent='Uppdatera'; }
@@ -390,11 +391,9 @@
         const idx = ids.indexOf(fromId);
         startIndex = (idx>=0 ? idx+1 : 0);
       }
-      // hitta första ej besvarade efter current, wrap runt
       const rotated = ids.slice(startIndex).concat(ids.slice(0,startIndex));
       const next = rotated.find(id => !completedBoxes.has(String(id)));
       if(next===undefined){
-        // allt klart – öppna första för ev. ändring (ingen auto-scroll)
         if(ids.length) {
           const d = document.getElementById(`fact-${ids[0]}`);
           if(d){ d.open = true; d.classList.add('flash'); setTimeout(()=>d.classList.remove('flash'), 650); }
@@ -403,7 +402,7 @@
       }
       const det = document.getElementById(`fact-${next}`);
       if(det){
-        det.open = true; // ingen scrollIntoView -> ingen "hoppa till botten"
+        det.open = true;
         det.classList.add('flash');
         setTimeout(()=>det.classList.remove('flash'), 650);
       }
