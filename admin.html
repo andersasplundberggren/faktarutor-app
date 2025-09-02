@@ -45,11 +45,13 @@
     .card-subtitle{color:#64748b;font-size:.9rem;margin-top:.25rem}
     .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:2rem;margin-bottom:2rem}
     .chart-container{position:relative;height:350px;margin:1rem 0}
-    .responsibility-matrix{overflow-x:auto}
+    .responsibility-matrix{overflow-x:auto;max-height:600px;overflow-y:auto;position:relative}
     .matrix-table{width:100%;border-collapse:collapse;min-width:800px}
     .matrix-table th,.matrix-table td{padding:1rem;text-align:center;border:1px solid #e2e8f0}
-    .matrix-table th{background:#f8fafc;font-weight:600;color:#374151}
+    .matrix-table th{background:#f8fafc;font-weight:600;color:#374151;position:sticky;top:0;z-index:10}
     .matrix-table td{background:#fff}
+    .matrix-table tbody th{position:sticky;left:0;background:#f8fafc;z-index:5;font-weight:600}
+    .matrix-table tbody td:first-child{position:sticky;left:0;background:#fff;z-index:5;font-weight:600;text-align:left}
     .matrix-cell{display:flex;align-items:center;justify-content:center;gap:.5rem}
     .responsibility-badge{padding:.25rem .75rem;border-radius:20px;font-size:.8rem;font-weight:500}
     .badge-main{background:#dbeafe;color:#1e40af}
