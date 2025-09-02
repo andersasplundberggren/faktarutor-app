@@ -23,7 +23,8 @@
     .welcome h1{font-size:1.25rem;font-weight:700;background:linear-gradient(135deg,#4c51bf,#667eea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
     .welcome p{color:#64748b;font-size:.95rem}
     .quick-actions{display:flex;gap:.5rem;flex-wrap:wrap}
-    .chip{border:1px solid #e2e8f0;background:#fff;border-radius:999px;padding:.35rem .75rem;font-size:.85rem;color:#334155}
+    .chip{border:1px solid #e2e8f0;background:#fff;border-radius:999px;padding:.35rem .75rem;font-size:.85rem;color:#334155;cursor:pointer}
+    .chip:hover{background:#f8fafc}
     .list{display:grid;grid-template-columns:1fr;gap:.6rem}
     /* Compact accordion */
     details.fact{background:rgba(255,255,255,.94);border:1px solid rgba(226,232,240,.9);border-radius:12px;overflow:hidden}
@@ -49,20 +50,26 @@
     textarea{width:100%;min-height:80px;padding:.65rem;border:1px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:.95rem;resize:vertical;background:#fff}
     textarea:focus{outline:none;border-color:#4c51bf;box-shadow:0 0 0 3px rgba(76,81,191,.12)}
     .btns{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
-    .btn{padding:.6rem .9rem;border:none;border-radius:10px;font-weight:600;cursor:pointer}
+    .btn{padding:.6rem .9rem;border:none;border-radius:10px;font-weight:600;cursor:pointer;transition:all .2s ease}
     .primary{background:linear-gradient(135deg,#4c51bf,#667eea);color:#fff}
     .secondary{background:linear-gradient(135deg,#059669,#10b981);color:#fff}
     .ghost{background:#fff;border:1px solid #e2e8f0;color:#334155}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .btn:hover:not(:disabled){transform:translateY(-1px)}
     .msg{margin-top:.5rem;padding:.5rem;border-radius:8px;text-align:center;font-weight:500}
     .ok{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
     .err{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+    .warning{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
     .footer-bar{position:sticky;bottom:8px;display:flex;justify-content:flex-end;max-width:1100px;margin:12px auto 0;pointer-events:none}
     .footer-bar .btn{pointer-events:auto}
 
-    /* VISUELL HINT: kort “flash” när nästa öppnas */
+    /* VISUELL HINT: kort "flash" när nästa öppnas */
     @keyframes flashBorder{0%{box-shadow:0 0 0 0 rgba(76,81,191,.35)}100%{box-shadow:0 0 0 8px rgba(76,81,191,0)}}
     details.fact.flash{animation:flashBorder .6s ease-out 1}
+
+    /* Auto-save indikator */
+    .autosave-status{font-size:.75rem;color:#6b7280;margin-top:.25rem;opacity:0;transition:opacity .3s ease}
+    .autosave-status.show{opacity:1}
 
     /* små skärmar */
     @media (max-width:768px){
@@ -116,8 +123,12 @@
 
     let factBoxes = [];
     let completedBoxes = new Set(JSON.parse(localStorage.getItem('completedBoxes') || '[]'));
-    // savedAnswers[boxId] = { q1_answer, q2_answer, q3_answer, response_id }
     let savedAnswers = JSON.parse(localStorage.getItem('savedAnswers') || '{}');
+    
+    // Dublikatskydd: spåra pågående API-anrop
+    let activeSubmissions = new Set();
+    let autoSaveTimeouts = {};
+    let lastSaveAttempt = {};
 
     // JSONP helper
     function jsonp(url){
@@ -132,7 +143,61 @@
       });
     }
 
-    // Förifyll lokalt från servern för aktuell session (om stöds i Apps Script)
+    // Förbättrat dublikatskydd för API-anrop
+    function createSubmissionKey(boxId, q1, q2, q3) {
+      return `${boxId}-${q1}-${q2.substring(0,50)}-${q3.substring(0,50)}`;
+    }
+
+    function isRecentDuplicate(boxId, q1, q2, q3) {
+      const key = createSubmissionKey(boxId, q1, q2, q3);
+      const now = Date.now();
+      const lastAttempt = lastSaveAttempt[key];
+      
+      // Förhindra identiska svar inom 3 sekunder
+      if (lastAttempt && (now - lastAttempt) < 3000) {
+        return true;
+      }
+      
+      lastSaveAttempt[key] = now;
+      return false;
+    }
+
+    // Auto-save funktionalitet
+    function scheduleAutoSave(boxId) {
+      if (autoSaveTimeouts[boxId]) {
+        clearTimeout(autoSaveTimeouts[boxId]);
+      }
+      
+      autoSaveTimeouts[boxId] = setTimeout(() => {
+        const q1 = document.querySelector(`input[name="q1_${boxId}"]:checked`)?.value || '';
+        if (q1) { // Endast auto-spara om obligatorisk fråga är ifylld
+          showAutoSaveStatus(boxId, 'Sparar automatiskt...');
+          submitAnswers(boxId, true); // true = auto-save mode
+        }
+      }, 2000); // Auto-spara efter 2 sekunder inaktivitet
+    }
+
+    function showAutoSaveStatus(boxId, message, isError = false) {
+      let statusEl = document.getElementById(`autosave_${boxId}`);
+      if (!statusEl) {
+        statusEl = document.createElement('div');
+        statusEl.id = `autosave_${boxId}`;
+        statusEl.className = 'autosave-status';
+        const msgEl = document.getElementById(`msg_${boxId}`);
+        if (msgEl && msgEl.parentNode) {
+          msgEl.parentNode.insertBefore(statusEl, msgEl);
+        }
+      }
+      
+      statusEl.textContent = message;
+      statusEl.className = `autosave-status show ${isError ? 'err' : ''}`;
+      
+      setTimeout(() => {
+        statusEl.classList.remove('show');
+      }, 3000);
+    }
+
+    // Förifyll lokalt från servern för aktuell session
     async function hydrateSavedFromServer(){
       try{
         let data = await jsonp(`${API_URL}?action=get_session_responses&session_id=${encodeURIComponent(sessionId)}`);
@@ -237,11 +302,11 @@
 
           <div class="q">
             <h4><span class="qnum">3</span>${box.q3_text} <span style="font-size:.85rem;color:#6b7280">(valfritt)</span></h4>
-            <textarea id="q3_${boxId}" rows="3" ${done?'disabled':''}>${saved.q3_answer || ''}</textarea>
+            <textarea id="q3_${boxId}" rows="3" ${done?'disabled':''} placeholder="Frivillig kommentar eller fördjupning...">${saved.q3_answer || ''}</textarea>
           </div>
 
           <div class="btns">
-            <button class="btn primary" id="btn_submit_${boxId}" onclick="submitAnswers(${boxId})" style="${done?'display:none':''}">Spara</button>
+            <button class="btn primary" id="btn_submit_${boxId}" onclick="submitAnswers(${boxId})" style="${done?'display:none':''}">Spara svar</button>
             <button class="btn ghost" onclick="saveAndNext(${boxId})">Spara & nästa ↦</button>
           </div>
           <div class="msg" id="msg_${boxId}" style="display:none"></div>
@@ -250,6 +315,25 @@
         det.appendChild(sum);
         det.appendChild(content);
         list.appendChild(det);
+      });
+
+      // Lägg till event listeners för auto-save
+      document.querySelectorAll('.opt input, textarea').forEach(input => {
+        const boxId = parseInt(input.closest('details').id.replace('fact-', ''));
+        
+        input.addEventListener('change', () => {
+          if (!completedBoxes.has(String(boxId))) {
+            scheduleAutoSave(boxId);
+          }
+        });
+        
+        if (input.tagName === 'TEXTAREA') {
+          input.addEventListener('input', () => {
+            if (!completedBoxes.has(String(boxId))) {
+              scheduleAutoSave(boxId);
+            }
+          });
+        }
       });
 
       // pill-selected styling
@@ -268,7 +352,7 @@
         });
       });
 
-      // Expandera-funktion (med null-guards)
+      // Expandera-funktion
       const toggleAllEl = document.getElementById('toggle-all');
       if (toggleAllEl) {
         toggleAllEl.onclick = () => {
@@ -303,23 +387,54 @@
       });
     }
 
-    function showMsg(boxId, text, ok=true){
+    function showMsg(boxId, text, type='ok'){
       const el = document.getElementById(`msg_${boxId}`);
-      el.className = `msg ${ok?'ok':'err'}`;
+      el.className = `msg ${type}`;
       el.textContent = text;
       el.style.display = 'block';
-      setTimeout(()=>{ el.style.display='none'; }, 2000);
+      setTimeout(()=>{ el.style.display='none'; }, type === 'warning' ? 4000 : 2000);
     }
 
-    async function submitAnswers(boxId){
+    async function submitAnswers(boxId, isAutoSave = false){
+      const submissionId = `${boxId}_${Date.now()}`;
+      
+      // Förhindra duplicerade anrop
+      if (activeSubmissions.has(boxId)) {
+        if (!isAutoSave) {
+          showMsg(boxId, '⏳ Sparar redan, vänta...', 'warning');
+        }
+        return false;
+      }
+
       const q1 = document.querySelector(`input[name="q1_${boxId}"]:checked`)?.value || '';
       const q2 = Array.from(document.querySelectorAll(`input[name="q2_${boxId}"]:checked`)).map(cb=>cb.value).join(', ');
       const q3 = document.getElementById(`q3_${boxId}`).value || '';
-      if(!q1){ showMsg(boxId,'⚠️ Fråga 1 är obligatorisk.',false); return; }
+      
+      if(!q1){ 
+        showMsg(boxId,'⚠️ Fråga 1 är obligatorisk.',  'err'); 
+        return false; 
+      }
 
+      // Kolla om detta är ett duplicerat svar
+      if (isRecentDuplicate(boxId, q1, q2, q3)) {
+        if (!isAutoSave) {
+          showMsg(boxId, '⚠️ Samma svar skickades nyligen', 'warning');
+        }
+        return false;
+      }
+
+      activeSubmissions.add(boxId);
       const btn = document.getElementById(`btn_submit_${boxId}`);
       const isUpdate = Boolean(savedAnswers[String(boxId)]?.response_id);
-      if(btn){ btn.disabled = true; btn.textContent = isUpdate ? 'Uppdaterar…' : 'Sparar…'; }
+      
+      if(btn && !isAutoSave){ 
+        btn.disabled = true; 
+        btn.textContent = isUpdate ? 'Uppdaterar…' : 'Sparar…'; 
+      }
+
+      if (isAutoSave) {
+        showAutoSaveStatus(boxId, 'Sparar...');
+      }
 
       try{
         const payload = {
@@ -327,11 +442,15 @@
           timestamp: new Date().toISOString(),
           session_id: sessionId,
           box_id: boxId,
-          q1_answer: q1, q2_answer: q2, q3_answer: q3
+          q1_answer: q1, 
+          q2_answer: q2, 
+          q3_answer: q3,
+          submission_id: submissionId // Unik identifierare för detta anrop
         };
         if(isUpdate){ payload.response_id = savedAnswers[String(boxId)].response_id; }
 
         const res = await jsonp(`${API_URL}?` + new URLSearchParams(payload).toString());
+        
         if(res && res.success){
           const responseId = res.response_id || savedAnswers[String(boxId)]?.response_id || null;
           savedAnswers[String(boxId)] = { q1_answer:q1, q2_answer:q2, q3_answer:q3, response_id:responseId };
@@ -344,39 +463,45 @@
           fact.querySelectorAll('input, textarea').forEach(el=> el.disabled = true);
 
           const submitBtn = document.getElementById(`btn_submit_${boxId}`);
-          const editBtn = document.getElementById(`btn_edit_${boxId}`);
           if(submitBtn) submitBtn.style.display = 'none';
-          if(editBtn)   editBtn.style.display   = 'inline-block';
 
           const st = document.getElementById(`st_${boxId}`);
           st.classList.add('ok'); st.textContent = '✓';
 
-          showMsg(boxId, isUpdate ? '✅ Svar uppdaterat!' : '✅ Svar sparat!');
+          if (isAutoSave) {
+            showAutoSaveStatus(boxId, '✅ Sparat automatiskt');
+          } else {
+            showMsg(boxId, isUpdate ? '✅ Svar uppdaterat!' : '✅ Svar sparat!');
+          }
+          
           updateProgress();
-
           return true;
-        }else{
-          showMsg(boxId, `❌ ${res?.error || 'Kunde inte spara svar'}`, false);
+          
+        } else {
+          const errorMsg = res?.error || 'Kunde inte spara svar';
+          if (isAutoSave) {
+            showAutoSaveStatus(boxId, `❌ ${errorMsg}`, true);
+          } else {
+            showMsg(boxId, `❌ ${errorMsg}`, 'err');
+          }
           return false;
         }
       }catch(e){
         console.error(e);
-        showMsg(boxId, '❌ Tekniskt fel. Försök igen.', false);
+        const errorMsg = '❌ Tekniskt fel. Försök igen.';
+        if (isAutoSave) {
+          showAutoSaveStatus(boxId, errorMsg, true);
+        } else {
+          showMsg(boxId, errorMsg, 'err');
+        }
         return false;
       }finally{
-        if(btn){ btn.disabled = false; btn.textContent = isUpdate ? 'Uppdatera' : 'Spara'; }
+        activeSubmissions.delete(boxId);
+        if(btn && !isAutoSave){ 
+          btn.disabled = false; 
+          btn.textContent = isUpdate ? 'Uppdatera' : 'Spara svar'; 
+        }
       }
-    }
-
-    function editAnswers(boxId){
-      const fact = document.getElementById(`fact-${boxId}`);
-      fact.open = true;
-      fact.querySelectorAll('input, textarea').forEach(el=> el.disabled = false);
-      const submitBtn = document.getElementById(`btn_submit_${boxId}`);
-      const editBtn = document.getElementById(`btn_edit_${boxId}`);
-      if(submitBtn){ submitBtn.style.display='inline-block'; submitBtn.textContent='Uppdatera'; }
-      if(editBtn){ editBtn.style.display='none'; }
-      showMsg(boxId, '🔧 Redigeringsläge aktiverat.');
     }
 
     async function saveAndNext(currentId){
@@ -421,9 +546,13 @@
       const completed = completedBoxes.size;
       const total = factBoxes.length;
       const pct = total ? (completed/total)*100 : 0;
-      document.getElementById('progress-text').textContent = `${completed}/${total}`;
       document.getElementById('progress-fill').style.width = `${pct}%`;
     }
+
+    // Rensa gamla timeouts när sidan laddas om
+    window.addEventListener('beforeunload', () => {
+      Object.values(autoSaveTimeouts).forEach(timeout => clearTimeout(timeout));
+    });
 
     // Start: hämta tidigare svar (om möjligt), rendera sedan
     (async function init(){
@@ -432,4 +561,5 @@
     })();
   </script>
 </body>
-</html>
+</html>progress-text').textContent = `${completed}/${total}`;
+      document.getElementById('
