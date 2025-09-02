@@ -19,6 +19,7 @@
     .header-actions{display:flex;gap:1rem;align-items:center}
     .refresh-btn{background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:.75rem 1.5rem;border-radius:8px;cursor:pointer;font-weight:500;transition:all .3s ease;display:flex;align-items:center;gap:.5rem}
     .refresh-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,.3)}
+    .refresh-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
     .container{max-width:1400px;margin:0 auto;padding:2rem}
     .filter-panel{background:#fff;border-radius:16px;padding:2rem;margin-bottom:2rem;box-shadow:0 4px 6px rgba(0,0,0,.05)}
     .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-top:1.5rem}
@@ -73,13 +74,15 @@
     .loading{text-align:center;padding:3rem;color:#64748b}
     .spinner{width:40px;height:40px;border:4px solid #f3f4f6;border-top:4px solid #3b82f6;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
     @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-    .error{background:#fef2f2;color:#dc2626;padding:1rem;border-radius:8px;border:1px solid #fecaca}
+    .error{background:#fef2f2;color:#dc2626;padding:1rem;border-radius:8px;border:1px solid #fecaca;margin:1rem 0}
+    .debug-info{background:#f0f9ff;border:1px solid #0284c7;padding:1rem;border-radius:8px;margin:1rem 0;font-family:monospace;font-size:0.8rem}
     .uppdrag-selector{margin-bottom:2rem}
     .uppdrag-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
     .tab{padding:.75rem 1.5rem;background:#f1f5f9;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;transition:all .2s ease;position:relative}
     .tab.active{background:#3b82f6;color:#fff}
     .tab:hover:not(.active){background:#e2e8f0}
     .tab-badge{position:absolute;top:-8px;right:-8px;background:#10b981;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600}
+    .success-message{background:#f0fdf4;color:#15803d;padding:1rem;border-radius:8px;border:1px solid #bbf7d0;margin:1rem 0}
     @media (max-width:768px){
       .container{padding:1rem}
       .dashboard-grid{grid-template-columns:1fr}
@@ -98,12 +101,21 @@
       </div>
       <div class="admin-title">Dashboard - Fördelning av Politiska Uppdrag</div>
       <div class="header-actions">
-        <button class="refresh-btn" onclick="loadAllData()">🔄 Uppdatera data</button>
+        <button class="refresh-btn" id="refresh-button" onclick="loadAllData()">🔄 Uppdatera data</button>
       </div>
     </div>
   </div>
 
   <main class="container">
+    <!-- Debug-information -->
+    <div id="debug-info" class="debug-info" style="display:none;">
+      <h4>Debug-information:</h4>
+      <div id="debug-content"></div>
+    </div>
+
+    <!-- Felmeddelanden -->
+    <div id="error-messages"></div>
+
     <!-- Övergripande statistik -->
     <div class="stats-overview">
       <div class="stat-card primary">
@@ -129,8 +141,37 @@
       <div class="insight-title">🎯 Strategiska insikter för ledningen</div>
       <div class="insights-grid" id="insights-grid"></div>
     </div>
-    
 
+    <!-- Pedagogisk förklaring av konsensusberäkning -->
+    <div class="card" style="background: linear-gradient(135deg, #e0f2fe, #f0f9ff); border-left: 4px solid #0284c7; margin-bottom: 1rem;">
+      <div style="padding: 1rem;">
+        <details>
+          <summary style="cursor: pointer; font-weight: 600; color: #0c4a6e; margin-bottom: 0.5rem;">
+            📊 Hur beräknas konsensus? (klicka för att läsa mer)
+          </summary>
+          <div style="color: #0f172a; line-height: 1.6; font-size: 0.9rem; margin-top: 1rem;">
+            <p><strong>Konsensus visar hur eniga respondenterna är</strong> - inte om svaren är "rätta" eller "fel".</p>
+            <br>
+            <p><strong>Beräkning:</strong> Konsensus = (Antal som valde det populäraste svaret / Totalt antal svar) × 100</p>
+            <br>
+            <p><strong>Exempel:</strong> Om 10 personer svarar och 7 av dem säger kommunledningskontoret ska ha huvudansvaret, blir konsensus 70%.</p>
+            <br>
+            <p><strong>Tolkning:</strong></p>
+            <ul style="margin: 0.5rem 0 0 1.5rem;">
+              <li>🟢 <strong>Hög konsensus (80%+):</strong> Bred enighet, färdigt för beslut</li>
+              <li>🟡 <strong>Medel konsensus (50-79%):</strong> Viss enighet, kan behöva diskussion</li>
+              <li>🔴 <strong>Låg konsensus (&lt;50%):</strong> Delade meningar, kräver mer utredning</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Uppdragsväljare -->
+    <div class="uppdrag-selector">
+      <h3>Välj politiskt uppdrag för detaljanalys</h3>
+      <div class="uppdrag-tabs" id="uppdrag-tabs"></div>
+    </div>
 
     <!-- Kommentarer -->
     <div class="card">
@@ -158,31 +199,6 @@
       </div>
       <div class="responsibility-matrix">
         <table class="matrix-table" id="responsibility-matrix"></table>
-      </div>
-    </div>
-
-    <!-- Pedagogisk förklaring av konsensusberäkning -->
-    <div class="card" style="background: linear-gradient(135deg, #e0f2fe, #f0f9ff); border-left: 4px solid #0284c7; margin-bottom: 1rem;">
-      <div style="padding: 1rem;">
-        <details>
-          <summary style="cursor: pointer; font-weight: 600; color: #0c4a6e; margin-bottom: 0.5rem;">
-            📊 Hur beräknas konsensus? (klicka för att läsa mer)
-          </summary>
-          <div style="color: #0f172a; line-height: 1.6; font-size: 0.9rem; margin-top: 1rem;">
-            <p><strong>Konsensus visar hur eniga respondenterna är</strong> - inte om svaren är "rätta" eller "fel".</p>
-            <br>
-            <p><strong>Beräkning:</strong> Konsensus = (Antal som valde det populäraste svaret / Totalt antal svar) × 100</p>
-            <br>
-            <p><strong>Exempel:</strong> Om 10 personer svarar och 7 av dem säger kommunledningskontoret ska ha huvudansvaret, blir konsensus 70%.</p>
-            <br>
-            <p><strong>Tolkning:</strong></p>
-            <ul style="margin: 0.5rem 0 0 1.5rem;">
-              <li>🟢 <strong>Hög konsensus (80%+):</strong> Bred enighet, färdigt för beslut</li>
-              <li>🟡 <strong>Medel konsensus (50-79%):</strong> Viss enighet, kan behöva diskussion</li>
-              <li>🔴 <strong>Låg konsensus (&lt;50%):</strong> Delade meningar, kräver mer utredning</li>
-            </ul>
-          </div>
-        </details>
       </div>
     </div>
 
@@ -248,71 +264,230 @@
     let currentUppdragId = 1;
     let charts = {};
     let allFörvaltningar = new Set();
+    let debugMode = false; // Sätt till true för debug-output
 
-    // JSONP helper
-    function jsonp(url){
-      return new Promise((resolve) => {
-        const cb = 'jsonp_callback_' + Math.round(Math.random()*1e9);
+    // Förbättrad JSONP med timeout och bättre felhantering
+    function jsonp(url, timeout = 15000) {
+      return new Promise((resolve, reject) => {
+        const cb = 'jsonp_callback_' + Math.round(Math.random() * 1e9);
         const script = document.createElement('script');
         const sep = url.includes('?') ? '&' : '?';
-        window[cb] = (data) => { delete window[cb]; document.head.removeChild(script); resolve(data); };
-        script.onerror = () => { delete window[cb]; document.head.removeChild(script); resolve(null); };
+        
+        const cleanup = () => {
+          if (window[cb]) {
+            delete window[cb];
+          }
+          if (script.parentNode) {
+            script.parentNode.removeChild(script);
+          }
+        };
+        
+        const timer = setTimeout(() => {
+          cleanup();
+          const error = new Error(`JSONP timeout efter ${timeout}ms för: ${url}`);
+          console.error(error.message);
+          reject(error);
+        }, timeout);
+        
+        window[cb] = (data) => {
+          clearTimeout(timer);
+          cleanup();
+          if (debugMode) {
+            console.log('JSONP svar från:', url, data);
+          }
+          resolve(data);
+        };
+        
+        script.onerror = (error) => {
+          clearTimeout(timer);
+          cleanup();
+          const err = new Error(`JSONP nätverksfel för: ${url}`);
+          console.error(err.message, error);
+          reject(err);
+        };
+        
         script.src = `${url}${sep}callback=${cb}`;
         document.head.appendChild(script);
+        
+        if (debugMode) {
+          console.log('JSONP anrop till:', script.src);
+        }
       });
     }
 
-    // Ladda all data
+    // Visa felmeddelanden för användaren
+    function showError(message, details = null) {
+      const container = document.getElementById('error-messages');
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error';
+      errorDiv.innerHTML = `
+        <strong>Fel:</strong> ${message}
+        ${details ? `<br><small>${details}</small>` : ''}
+        <button onclick="this.parentElement.remove()" style="float:right;background:none;border:none;cursor:pointer;">✕</button>
+      `;
+      container.appendChild(errorDiv);
+    }
+
+    // Visa framgångsmeddelanden
+    function showSuccess(message) {
+      const container = document.getElementById('error-messages');
+      const successDiv = document.createElement('div');
+      successDiv.className = 'success-message';
+      successDiv.innerHTML = `
+        <strong>Framgång:</strong> ${message}
+        <button onclick="this.parentElement.remove()" style="float:right;background:none;border:none;cursor:pointer;">✕</button>
+      `;
+      container.appendChild(successDiv);
+      
+      // Ta bort efter 5 sekunder
+      setTimeout(() => {
+        if (successDiv.parentElement) {
+          successDiv.remove();
+        }
+      }, 5000);
+    }
+
+    // Debug-funktioner
+    function addDebugInfo(info) {
+      if (!debugMode) return;
+      
+      const debugContainer = document.getElementById('debug-info');
+      const debugContent = document.getElementById('debug-content');
+      
+      debugContainer.style.display = 'block';
+      const timestamp = new Date().toLocaleTimeString();
+      debugContent.innerHTML += `<div>[${timestamp}] ${info}</div>`;
+    }
+
+    // Ladda all data med förbättrad felhantering
     async function loadAllData() {
+      const refreshBtn = document.getElementById('refresh-button');
+      
       try {
+        // Rensa tidigare felmeddelanden
+        document.getElementById('error-messages').innerHTML = '';
+        
+        // Inaktivera knapp under laddning
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = '⏳ Laddar...';
+        
         document.getElementById('main-loading').style.display = 'block';
+        addDebugInfo('Startar laddning av data...');
+        
+        // Testa API-anslutning först
+        addDebugInfo('Testar API-anslutning...');
+        
+        addDebugInfo('Laddar uppdrag...');
         await loadUppdrag();
+        addDebugInfo(`Laddade ${allUppdrag.length} uppdrag`);
+        
+        addDebugInfo('Laddar alla svar...');
         await loadAllResponses();
+        addDebugInfo(`Laddade ${allResponses.length} svar`);
+        
+        if (allUppdrag.length === 0) {
+          throw new Error('Inga uppdrag kunde laddas från API:et');
+        }
+        
         extractFörvaltningar();
+        addDebugInfo(`Extraherade ${allFörvaltningar.size} förvaltningar`);
+        
         setupFilters();
         updateOverallStats();
         createUppdragTabs();
         await ensureCurrentTabVisibleAndLoad();
         generateInsights();
         createResponsibilityMatrix();
+        
+        showSuccess('Data laddades framgångsrikt!');
+        addDebugInfo('All data laddad framgångsrikt');
+        
       } catch (error) {
-        console.error('Fel vid laddning:', error);
-        document.getElementById('main-loading').innerHTML = '<div class="error">Kunde inte ladda data. Kontrollera anslutningen.</div>';
+        console.error('Detaljerat fel vid laddning:', error);
+        
+        const errorMessage = error.message || 'Okänt fel uppstod';
+        showError('Kunde inte ladda data från servern', errorMessage);
+        
+        document.getElementById('main-loading').innerHTML = `
+          <div class="error">
+            <h4>Fel vid laddning av data</h4>
+            <p>${errorMessage}</p>
+            <p>Kontrollera att:</p>
+            <ul>
+              <li>Internetanslutningen fungerar</li>
+              <li>API:et är tillgängligt</li>
+              <li>Inga annonsblockerare blockerar förfrågan</li>
+            </ul>
+            <button onclick="loadAllData()" style="margin-top:1rem;padding:0.5rem 1rem;background:#3b82f6;color:white;border:none;border-radius:4px;cursor:pointer;">
+              Försök igen
+            </button>
+          </div>
+        `;
+        
+        addDebugInfo(`FEL: ${errorMessage}`);
+        
       } finally {
+        // Återställ knapp
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = '🔄 Uppdatera data';
+        
         document.getElementById('main-loading').style.display = 'none';
       }
     }
 
-    // Ladda uppdrag (faktarutor)
+    // Ladda uppdrag med förbättrad felhantering
     async function loadUppdrag() {
-      const data = await jsonp(`${API_URL}?action=get_fact_boxes`);
-      if (Array.isArray(data)) {
-        allUppdrag = data;
-      } else {
+      try {
+        const data = await jsonp(`${API_URL}?action=get_fact_boxes`);
+        
+        if (Array.isArray(data)) {
+          allUppdrag = data;
+          addDebugInfo(`API returnerade ${data.length} uppdrag`);
+        } else if (data === null) {
+          throw new Error('API returnerade null - möjligt timeout eller nätverksfel');
+        } else {
+          throw new Error(`API returnerade oväntat format: ${typeof data}`);
+        }
+        
+      } catch (error) {
+        addDebugInfo(`Fel vid laddning av uppdrag: ${error.message}`);
         allUppdrag = [];
+        throw new Error(`Kunde inte ladda uppdrag: ${error.message}`);
       }
     }
 
-    // Ladda ALLA svar på en gång
+    // Ladda alla svar med förbättrad felhantering
     async function loadAllResponses() {
-      const data = await jsonp(`${API_URL}?action=get_all_responses`);
-      if (Array.isArray(data)) {
-        // Mappar kolumner: 0..6 → timestamp, session_id, box_id, q1, q2, q3, updated_at
-        const responses = data.map(row => ({
-          timestamp: row[0],
-          session_id: row[1],
-          box_id: row[2],
-          huvudansvar: row[3],
-          stöd: row[4],
-          kommentar: row[5],
-          updated_at: row[6] || null
-        })).filter(r => r.timestamp && r.session_id);
-        allResponses = responses;
-        filteredResponses = [...allResponses];
-        console.log(`Optimerat: Laddade ${allResponses.length} svar i ett enda anrop`);
-      } else {
+      try {
+        const data = await jsonp(`${API_URL}?action=get_all_responses`);
+        
+        if (Array.isArray(data)) {
+          const responses = data.map(row => ({
+            timestamp: row[0],
+            session_id: row[1],
+            box_id: row[2],
+            huvudansvar: row[3],
+            stöd: row[4],
+            kommentar: row[5],
+            updated_at: row[6] || null
+          })).filter(r => r.timestamp && r.session_id);
+          
+          allResponses = responses;
+          filteredResponses = [...allResponses];
+          
+          addDebugInfo(`Bearbetat ${responses.length} giltiga svar av ${data.length} rader`);
+          
+        } else if (data === null) {
+          throw new Error('API returnerade null - möjligt timeout eller nätverksfel');
+        } else {
+          throw new Error(`API returnerade oväntat format: ${typeof data}`);
+        }
+        
+      } catch (error) {
+        addDebugInfo(`Fel vid laddning av svar: ${error.message}`);
         allResponses = [];
         filteredResponses = [];
+        throw new Error(`Kunde inte ladda svar: ${error.message}`);
       }
     }
 
@@ -432,6 +607,12 @@
       const tabsContainer = document.getElementById('uppdrag-tabs');
       tabsContainer.innerHTML = '';
       const relevantUppdrag = allUppdrag.filter(uppdrag => filteredResponses.some(r => r.box_id == uppdrag.box_id));
+      
+      if (relevantUppdrag.length === 0) {
+        tabsContainer.innerHTML = '<div class="error">Inga uppdrag matchar de valda filtren.</div>';
+        return;
+      }
+      
       relevantUppdrag.forEach(uppdrag => {
         const responseCount = filteredResponses.filter(r => r.box_id == uppdrag.box_id).length;
         const tab = document.createElement('button');
@@ -520,6 +701,11 @@
       let bodyHtml = '<tbody>';
       const relevantUppdrag = allUppdrag.filter(uppdrag => filteredResponses.some(r => r.box_id == uppdrag.box_id));
 
+      if (relevantUppdrag.length === 0) {
+        table.innerHTML = '<tbody><tr><td colspan="100%">Inga uppdrag matchar de valda filtren.</td></tr></tbody>';
+        return;
+      }
+
       relevantUppdrag.forEach(uppdrag => {
         const uppdragResponses = filteredResponses.filter(r => r.box_id == uppdrag.box_id);
         if (uppdragResponses.length === 0) return;
@@ -560,7 +746,7 @@
       });
 
       const insightsData = [
-        { icon: '🎯', text: `${consensusLevels.high} uppdrag har hög konsensus (80%+), ${consensusLevels.low} har låg konsensus (&lt;50%)` },
+        { icon: '🎯', text: `${consensusLevels.high} uppdrag har hög konsensus (80%+), ${consensusLevels.low} har låg konsensus (<50%)` },
         { icon: '👥', text: `${new Set(filteredResponses.map(r => r.session_id)).size} chefer har deltagit i kartläggningen` }
       ];
       if (Object.keys(förvaltningPopularity).length > 0) {
@@ -652,7 +838,12 @@
       document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(url);
     }
 
-    document.addEventListener('DOMContentLoaded', function(){ loadAllData(); });
+    // Starta laddning när sidan är klar
+    document.addEventListener('DOMContentLoaded', function() { 
+      // Sätt debugMode till true för att se mer information
+      // debugMode = true;
+      loadAllData(); 
+    });
   </script>
 </body>
 </html>
