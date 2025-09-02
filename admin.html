@@ -131,8 +131,12 @@
         <div class="stat-label">Antal respondenter</div>
       </div>
       <div class="stat-card warning">
-        <div class="stat-number" id="avg-consensus">-</div>
-        <div class="stat-label">Genomsnittlig konsensus</div>
+        <div class="stat-number" id="avg-main-consensus">-</div>
+        <div class="stat-label">Genomsnittlig huvudkonsensus</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-number" id="avg-support-consensus">-</div>
+        <div class="stat-label">Genomsnittlig stödkonsensus</div>
       </div>
     </div>
 
@@ -194,7 +198,7 @@
       <div class="card-header">
         <div>
           <div class="card-title">Ansvarsmatris - Översikt alla uppdrag</div>
-          <div class="card-subtitle">Huvudansvar och stödförvaltningar per uppdrag</div>
+          <div class="card-subtitle">Huvudansvar (H) och stödförvaltningar (S) per uppdrag. Färgkodning: 🟢 Hög konsensus (80%+) 🟡 Medel (50-79%) 🔴 Låg (&lt;50%)</div>
         </div>
       </div>
       <div class="responsibility-matrix">
@@ -572,7 +576,7 @@
       generateInsights();
     }
 
-    // Beräkna konsensus
+    // Beräkna konsensus för huvudansvar
     function calculateConsensus(responses, field) {
       if (responses.length === 0) return 0;
       const counts = {}; let maxCount = 0;
@@ -583,23 +587,78 @@
       return Math.round((maxCount / responses.length) * 100);
     }
 
-    // Övergripande statistik
+    // Beräkna stödkonsensus - hur eniga är de om stödfunktioner
+    function calculateSupportConsensus(responses) {
+      if (responses.length === 0) return 0;
+      
+      // Samla alla stödförvaltningar från alla svar
+      const allSupportMentions = [];
+      responses.forEach(response => {
+        if (response.stöd && response.stöd.trim()) {
+          const supportList = response.stöd.split(',').map(s => s.trim()).filter(Boolean);
+          allSupportMentions.push(...supportList);
+        }
+      });
+      
+      if (allSupportMentions.length === 0) return 0;
+      
+      // Räkna hur ofta varje stödförvaltning nämns
+      const supportCounts = {};
+      allSupportMentions.forEach(support => {
+        supportCounts[support] = (supportCounts[support] || 0) + 1;
+      });
+      
+      // Hitta den mest nämnda stödförvaltningen
+      const maxSupportCount = Math.max(...Object.values(supportCounts));
+      
+      // Konsensus = (mest nämnda stödet / antal svar) * 100
+      return Math.round((maxSupportCount / responses.length) * 100);
+    }
+
+    // Beräkna komplexitet - antal unika förvaltningar som nämns totalt
+    function calculateComplexity(responses) {
+      const uniqueForvaltningar = new Set();
+      
+      responses.forEach(response => {
+        if (response.huvudansvar) uniqueForvaltningar.add(response.huvudansvar.trim());
+        if (response.stöd && response.stöd.trim()) {
+          response.stöd.split(',').forEach(s => {
+            const trimmed = s.trim();
+            if (trimmed) uniqueForvaltningar.add(trimmed);
+          });
+        }
+      });
+      
+      return uniqueForvaltningar.size;
+    }
+
+    // Övergripande statistik med separata konsensus-mätningar
     function updateOverallStats() {
       const uniqueUppdrag = new Set(filteredResponses.map(r => r.box_id)).size;
       const totalResponses = filteredResponses.length;
       const uniqueParticipants = new Set(filteredResponses.map(r => r.session_id)).size;
 
-      let totalConsensus = 0; let uppdragWithResponses = 0;
+      let totalMainConsensus = 0;
+      let totalSupportConsensus = 0;
+      let uppdragWithResponses = 0;
+      
       allUppdrag.forEach(uppdrag => {
         const uppdragResponses = filteredResponses.filter(r => r.box_id == uppdrag.box_id);
-        if (uppdragResponses.length > 0) { totalConsensus += calculateConsensus(uppdragResponses, 'huvudansvar'); uppdragWithResponses++; }
+        if (uppdragResponses.length > 0) { 
+          totalMainConsensus += calculateConsensus(uppdragResponses, 'huvudansvar');
+          totalSupportConsensus += calculateSupportConsensus(uppdragResponses);
+          uppdragWithResponses++; 
+        }
       });
-      const avgConsensus = uppdragWithResponses > 0 ? Math.round(totalConsensus / uppdragWithResponses) : 0;
+      
+      const avgMainConsensus = uppdragWithResponses > 0 ? Math.round(totalMainConsensus / uppdragWithResponses) : 0;
+      const avgSupportConsensus = uppdragWithResponses > 0 ? Math.round(totalSupportConsensus / uppdragWithResponses) : 0;
 
       document.getElementById('total-assignments').textContent = uniqueUppdrag;
       document.getElementById('total-responses').textContent = totalResponses;
       document.getElementById('unique-participants').textContent = uniqueParticipants;
-      document.getElementById('avg-consensus').textContent = avgConsensus + '%';
+      document.getElementById('avg-main-consensus').textContent = avgMainConsensus + '%';
+      document.getElementById('avg-support-consensus').textContent = avgSupportConsensus + '%';
     }
 
     // Tabs
@@ -690,13 +749,13 @@
       }).join('');
     }
 
-    // Skapa ansvarsmatris (exakt räkning av stöd)
+    // Skapa ansvarsmatris med utökad konsensusinformation
     function createResponsibilityMatrix() {
       const table = document.getElementById('responsibility-matrix');
       let headerHtml = '<thead><tr><th>Politiskt Uppdrag</th>';
       const sortedFörvaltningar = [...allFörvaltningar].sort();
       sortedFörvaltningar.forEach(f => { headerHtml += `<th>${f}</th>`; });
-      headerHtml += '<th>Konsensus</th></tr></thead>';
+      headerHtml += '<th>Huvudkonsensus</th><th>Stödkonsensus</th><th>Komplexitet</th></tr></thead>';
 
       let bodyHtml = '<tbody>';
       const relevantUppdrag = allUppdrag.filter(uppdrag => filteredResponses.some(r => r.box_id == uppdrag.box_id));
@@ -723,36 +782,90 @@
           if (!cellContent) cellContent = '-';
           bodyHtml += `<td><div class="matrix-cell">${cellContent}</div></td>`;
         });
-        const consensus = calculateConsensus(uppdragResponses, 'huvudansvar');
-        bodyHtml += `<td><strong>${consensus}%</strong></td></tr>`;
+        const mainConsensus = calculateConsensus(uppdragResponses, 'huvudansvar');
+        const supportConsensus = calculateSupportConsensus(uppdragResponses);
+        const complexity = calculateComplexity(uppdragResponses);
+        
+        // Färgkoda baserat på konsensus
+        const mainColor = mainConsensus >= 80 ? '#10b981' : mainConsensus >= 50 ? '#f59e0b' : '#ef4444';
+        const supportColor = supportConsensus >= 80 ? '#10b981' : supportConsensus >= 50 ? '#f59e0b' : '#ef4444';
+        const complexityColor = complexity <= 3 ? '#10b981' : complexity <= 5 ? '#f59e0b' : '#ef4444';
+        
+        bodyHtml += `<td><strong style="color:${mainColor}">${mainConsensus}%</strong></td>`;
+        bodyHtml += `<td><strong style="color:${supportColor}">${supportConsensus}%</strong></td>`;
+        bodyHtml += `<td><strong style="color:${complexityColor}">${complexity}</strong></td></tr>`;
       });
       bodyHtml += '</tbody>';
       table.innerHTML = headerHtml + bodyHtml;
     }
 
-    // Strategiska insikter
+    // Strategiska insikter med utökad analys
     function generateInsights() {
       const consensusLevels = { high: 0, medium: 0, low: 0 };
+      const supportConsensusLevels = { high: 0, medium: 0, low: 0 };
       const förvaltningPopularity = {};
+      const förvaltningAsSupport = {};
+      let totalComplexity = 0;
+      let uppdragCount = 0;
+      
       allUppdrag.forEach(uppdrag => {
         const responses = filteredResponses.filter(r => r.box_id == uppdrag.box_id);
         if (responses.length > 0) {
-          const consensus = calculateConsensus(responses, 'huvudansvar');
-          if (consensus >= 80) consensusLevels.high++;
-          else if (consensus >= 50) consensusLevels.medium++;
+          uppdragCount++;
+          
+          // Huvudkonsensus
+          const mainConsensus = calculateConsensus(responses, 'huvudansvar');
+          if (mainConsensus >= 80) consensusLevels.high++;
+          else if (mainConsensus >= 50) consensusLevels.medium++;
           else consensusLevels.low++;
-          responses.forEach(r => { if (r.huvudansvar) förvaltningPopularity[r.huvudansvar] = (förvaltningPopularity[r.huvudansvar] || 0) + 1; });
+          
+          // Stödkonsensus
+          const supportConsensus = calculateSupportConsensus(responses);
+          if (supportConsensus >= 80) supportConsensusLevels.high++;
+          else if (supportConsensus >= 50) supportConsensusLevels.medium++;
+          else supportConsensusLevels.low++;
+          
+          // Komplexitet
+          totalComplexity += calculateComplexity(responses);
+          
+          // Popularitet som huvudansvarig
+          responses.forEach(r => { 
+            if (r.huvudansvar) förvaltningPopularity[r.huvudansvar] = (förvaltningPopularity[r.huvudansvar] || 0) + 1; 
+          });
+          
+          // Popularitet som stödfunktion
+          responses.forEach(r => {
+            if (r.stöd) {
+              r.stöd.split(',').forEach(support => {
+                const trimmed = support.trim();
+                if (trimmed) förvaltningAsSupport[trimmed] = (förvaltningAsSupport[trimmed] || 0) + 1;
+              });
+            }
+          });
         }
       });
 
+      const avgComplexity = uppdragCount > 0 ? Math.round(totalComplexity / uppdragCount) : 0;
+
       const insightsData = [
-        { icon: '🎯', text: `${consensusLevels.high} uppdrag har hög konsensus (80%+), ${consensusLevels.low} har låg konsensus (<50%)` },
+        { icon: '🎯', text: `Huvudansvar: ${consensusLevels.high} hög konsensus, ${consensusLevels.low} låg konsensus` },
+        { icon: '🤝', text: `Stödfunktioner: ${supportConsensusLevels.high} hög konsensus, ${supportConsensusLevels.low} låg konsensus` },
         { icon: '👥', text: `${new Set(filteredResponses.map(r => r.session_id)).size} chefer har deltagit i kartläggningen` }
       ];
+      
       if (Object.keys(förvaltningPopularity).length > 0) {
-        const mostPopular = Object.keys(förvaltningPopularity).reduce((a,b) => förvaltningPopularity[a] > förvaltningPopularity[b] ? a : b);
-        insightsData.push({ icon: '🏛️', text: `${mostPopular} föreslås som huvudansvarig för flest uppdrag` });
+        const mostPopularMain = Object.keys(förvaltningPopularity).reduce((a,b) => förvaltningPopularity[a] > förvaltningPopularity[b] ? a : b);
+        insightsData.push({ icon: '🏛️', text: `${mostPopularMain} föreslås som huvudansvarig för flest uppdrag` });
       }
+      
+      if (Object.keys(förvaltningAsSupport).length > 0) {
+        const mostPopularSupport = Object.keys(förvaltningAsSupport).reduce((a,b) => förvaltningAsSupport[a] > förvaltningAsSupport[b] ? a : b);
+        const supportCount = förvaltningAsSupport[mostPopularSupport];
+        insightsData.push({ icon: '⚠️', text: `${mostPopularSupport} nämns som stöd i ${supportCount} uppdrag - potentiell flaskhals` });
+      }
+      
+      insightsData.push({ icon: '📊', text: `Genomsnittlig komplexitet: ${avgComplexity} förvaltningar per uppdrag` });
+      
       const commentsCount = filteredResponses.filter(r => r.kommentar && r.kommentar.trim()).length;
       if (commentsCount > 0) insightsData.push({ icon: '💬', text: `${commentsCount} av ${filteredResponses.length} svar innehåller kommentarer med fördjupade synpunkter` });
 
